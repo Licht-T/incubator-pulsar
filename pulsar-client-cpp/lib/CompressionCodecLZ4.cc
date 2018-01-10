@@ -18,37 +18,37 @@
  */
 #include "CompressionCodecLZ4.h"
 
-#include "lz4/lz4.h"
 #include <cassert>
+#include "lz4/lz4.h"
 
 namespace pulsar {
 
 SharedBuffer CompressionCodecLZ4::encode(const SharedBuffer& raw) {
-    // Get the max size of the compressed data and allocate a buffer to hold it
-    int maxCompressedSize = LZ4_compressBound(raw.readableBytes());
-    SharedBuffer compressed = SharedBuffer::allocate(maxCompressedSize);
+  // Get the max size of the compressed data and allocate a buffer to hold it
+  int maxCompressedSize = LZ4_compressBound(raw.readableBytes());
+  SharedBuffer compressed = SharedBuffer::allocate(maxCompressedSize);
 
-    int compressedSize = LZ4_compress_default(raw.data(), compressed.mutableData(),
-                                              raw.readableBytes(), maxCompressedSize);
-    assert(compressedSize > 0);
-    compressed.bytesWritten(compressedSize);
+  int compressedSize = LZ4_compress_default(raw.data(), compressed.mutableData(),
+                                            raw.readableBytes(), maxCompressedSize);
+  assert(compressedSize > 0);
+  compressed.bytesWritten(compressedSize);
 
-    return compressed;
+  return compressed;
 }
 
 bool CompressionCodecLZ4::decode(const SharedBuffer& encoded, uint32_t uncompressedSize,
                                  SharedBuffer& decoded) {
-    SharedBuffer decompressed = SharedBuffer::allocate(uncompressedSize);
+  SharedBuffer decompressed = SharedBuffer::allocate(uncompressedSize);
 
-    int result = LZ4_decompress_fast(encoded.data(), decompressed.mutableData(), uncompressedSize);
-    if (result > 0) {
-        decompressed.bytesWritten(uncompressedSize);
-        decoded = decompressed;
-        return true;
-    } else {
-        // Decompression failed
-        return false;
-    }
+  int result =
+      LZ4_decompress_fast(encoded.data(), decompressed.mutableData(), uncompressedSize);
+  if (result > 0) {
+    decompressed.bytesWritten(uncompressedSize);
+    decoded = decompressed;
+    return true;
+  } else {
+    // Decompression failed
+    return false;
+  }
 }
-
 }

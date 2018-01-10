@@ -31,41 +31,39 @@ class ReaderImpl;
 typedef boost::shared_ptr<ReaderImpl> ReaderImplPtr;
 typedef boost::weak_ptr<ReaderImpl> ReaderImplWeakPtr;
 
-class ReaderImpl: public boost::enable_shared_from_this<ReaderImpl> {
-public:
-    ReaderImpl(const ClientImplPtr client, const std::string& topic,
-               const ReaderConfiguration& conf,
-               const ExecutorServicePtr listenerExecutor,
-               ReaderCallback readerCreatedCallback);
+class ReaderImpl : public boost::enable_shared_from_this<ReaderImpl> {
+ public:
+  ReaderImpl(const ClientImplPtr client, const std::string& topic,
+             const ReaderConfiguration& conf, const ExecutorServicePtr listenerExecutor,
+             ReaderCallback readerCreatedCallback);
 
-    void start(const BatchMessageId& startMessageId);
+  void start(const BatchMessageId& startMessageId);
 
-    const std::string& getTopic() const;
+  const std::string& getTopic() const;
 
-    Result readNext(Message& msg);
-    Result readNext(Message& msg, int timeoutMs);
+  Result readNext(Message& msg);
+  Result readNext(Message& msg, int timeoutMs);
 
-    void closeAsync(ResultCallback callback);
+  void closeAsync(ResultCallback callback);
 
-    Future<Result, ReaderImplWeakPtr> getReaderCreatedFuture();
+  Future<Result, ReaderImplWeakPtr> getReaderCreatedFuture();
 
-    ConsumerImplPtr getConsumer();
+  ConsumerImplPtr getConsumer();
 
-private:
-    void handleConsumerCreated(Result result, ConsumerImplBaseWeakPtr consumer);
+ private:
+  void handleConsumerCreated(Result result, ConsumerImplBaseWeakPtr consumer);
 
-    void messageListener(Consumer consumer, const Message& msg);
+  void messageListener(Consumer consumer, const Message& msg);
 
-    void acknowledgeIfNecessary(Result result, const Message& msg);
+  void acknowledgeIfNecessary(Result result, const Message& msg);
 
-    std::string topic_;
-    ClientImplWeakPtr client_;
-    ReaderConfiguration readerConf_;
-    ConsumerImplPtr consumer_;
-    ReaderCallback readerCreatedCallback_;
-    ReaderListener readerListener_;
+  std::string topic_;
+  ClientImplWeakPtr client_;
+  ReaderConfiguration readerConf_;
+  ConsumerImplPtr consumer_;
+  ReaderCallback readerCreatedCallback_;
+  ReaderListener readerListener_;
 };
-
 }
 
 #endif /* LIB_READERIMPL_H_ */

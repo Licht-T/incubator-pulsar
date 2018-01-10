@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include <pulsar/Client.h>
 #include <gtest/gtest.h>
+#include <pulsar/Client.h>
 
 #include "../lib/Future.h"
 #include "../lib/Utils.h"
@@ -25,73 +25,73 @@
 using namespace pulsar;
 
 TEST(ConsumerTest, consumerNotInitialized) {
-    Consumer consumer;
+  Consumer consumer;
 
-    ASSERT_TRUE(consumer.getTopic().empty());
-    ASSERT_TRUE(consumer.getSubscriptionName().empty());
+  ASSERT_TRUE(consumer.getTopic().empty());
+  ASSERT_TRUE(consumer.getSubscriptionName().empty());
 
-    Message msg;
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.receive(msg));
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.receive(msg, 100));
+  Message msg;
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.receive(msg));
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.receive(msg, 100));
 
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledge(msg));
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledge(msg));
 
-    MessageId msgId;
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledge(msgId));
+  MessageId msgId;
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledge(msgId));
 
-    Result result;
-    {
-        Promise<bool, Result> promise;
-        consumer.acknowledgeAsync(msg, WaitForCallback(promise));
-        promise.getFuture().get(result);
+  Result result;
+  {
+    Promise<bool, Result> promise;
+    consumer.acknowledgeAsync(msg, WaitForCallback(promise));
+    promise.getFuture().get(result);
 
-        ASSERT_EQ(ResultConsumerNotInitialized, result);
-    }
+    ASSERT_EQ(ResultConsumerNotInitialized, result);
+  }
 
-    {
-        Promise<bool, Result> promise;
-        consumer.acknowledgeAsync(msgId, WaitForCallback(promise));
-        promise.getFuture().get(result);
+  {
+    Promise<bool, Result> promise;
+    consumer.acknowledgeAsync(msgId, WaitForCallback(promise));
+    promise.getFuture().get(result);
 
-        ASSERT_EQ(ResultConsumerNotInitialized, result);
-    }
+    ASSERT_EQ(ResultConsumerNotInitialized, result);
+  }
 
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledgeCumulative(msg));
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledgeCumulative(msgId));
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledgeCumulative(msg));
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.acknowledgeCumulative(msgId));
 
-    {
-        Promise<bool, Result> promise;
-        consumer.acknowledgeCumulativeAsync(msg, WaitForCallback(promise));
-        promise.getFuture().get(result);
+  {
+    Promise<bool, Result> promise;
+    consumer.acknowledgeCumulativeAsync(msg, WaitForCallback(promise));
+    promise.getFuture().get(result);
 
-        ASSERT_EQ(ResultConsumerNotInitialized, result);
-    }
+    ASSERT_EQ(ResultConsumerNotInitialized, result);
+  }
 
-    {
-        Promise<bool, Result> promise;
-        consumer.acknowledgeCumulativeAsync(msgId, WaitForCallback(promise));
-        promise.getFuture().get(result);
+  {
+    Promise<bool, Result> promise;
+    consumer.acknowledgeCumulativeAsync(msgId, WaitForCallback(promise));
+    promise.getFuture().get(result);
 
-        ASSERT_EQ(ResultConsumerNotInitialized, result);
-    }
+    ASSERT_EQ(ResultConsumerNotInitialized, result);
+  }
 
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.close());
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.close());
 
-    {
-        Promise<bool, Result> promise;
-        consumer.closeAsync(WaitForCallback(promise));
-        promise.getFuture().get(result);
+  {
+    Promise<bool, Result> promise;
+    consumer.closeAsync(WaitForCallback(promise));
+    promise.getFuture().get(result);
 
-        ASSERT_EQ(ResultConsumerNotInitialized, result);
-    }
+    ASSERT_EQ(ResultConsumerNotInitialized, result);
+  }
 
-    ASSERT_EQ(ResultConsumerNotInitialized, consumer.unsubscribe());
+  ASSERT_EQ(ResultConsumerNotInitialized, consumer.unsubscribe());
 
-    {
-        Promise<bool, Result> promise;
-        consumer.unsubscribeAsync(WaitForCallback(promise));
-        promise.getFuture().get(result);
+  {
+    Promise<bool, Result> promise;
+    consumer.unsubscribeAsync(WaitForCallback(promise));
+    promise.getFuture().get(result);
 
-        ASSERT_EQ(ResultConsumerNotInitialized, result);
-    }
+    ASSERT_EQ(ResultConsumerNotInitialized, result);
+  }
 }

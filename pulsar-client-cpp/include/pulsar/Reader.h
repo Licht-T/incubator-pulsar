@@ -24,7 +24,6 @@
 
 #pragma GCC visibility push(default)
 
-
 namespace pulsar {
 class PulsarWrapper;
 class PulsarFriend;
@@ -35,54 +34,55 @@ class ReaderImpl;
  */
 class Reader {
  public:
-    /**
-     * Construct an uninitialized reader object
-     */
-    Reader();
+  /**
+   * Construct an uninitialized reader object
+   */
+  Reader();
 
-    /**
-     * @return the topic this reader is reading from
-     */
-    const std::string& getTopic() const;
+  /**
+   * @return the topic this reader is reading from
+   */
+  const std::string& getTopic() const;
 
-    /**
-     * Read a single message.
-     *
-     * If a message is not immediately available, this method will block until a new
-     * message is available.
-     *
-     * @param msg a non-const reference where the received message will be copied
-     * @return ResultOk when a message is received
-     * @return ResultInvalidConfiguration if a message listener had been set in the configuration
-     */
-    Result readNext(Message& msg);
+  /**
+   * Read a single message.
+   *
+   * If a message is not immediately available, this method will block until a new
+   * message is available.
+   *
+   * @param msg a non-const reference where the received message will be copied
+   * @return ResultOk when a message is received
+   * @return ResultInvalidConfiguration if a message listener had been set in the
+   * configuration
+   */
+  Result readNext(Message& msg);
 
-    /**
-     * Read a single message
-     *
-     * @param msg a non-const reference where the received message will be copied
-     * @param timeoutMs the receive timeout in milliseconds
-     * @return ResultOk if a message was received
-     * @return ResultTimeout if the receive timeout was triggered
-     * @return ResultInvalidConfiguration if a message listener had been set in the configuration
-     */
-    Result readNext(Message& msg, int timeoutMs);
+  /**
+   * Read a single message
+   *
+   * @param msg a non-const reference where the received message will be copied
+   * @param timeoutMs the receive timeout in milliseconds
+   * @return ResultOk if a message was received
+   * @return ResultTimeout if the receive timeout was triggered
+   * @return ResultInvalidConfiguration if a message listener had been set in the
+   * configuration
+   */
+  Result readNext(Message& msg, int timeoutMs);
 
-    Result close();
+  Result close();
 
-    void closeAsync(ResultCallback callback);
+  void closeAsync(ResultCallback callback);
 
-private:
-    typedef boost::shared_ptr<ReaderImpl> ReaderImplPtr;
-    ReaderImplPtr impl_;
-    explicit Reader(ReaderImplPtr);
+ private:
+  typedef boost::shared_ptr<ReaderImpl> ReaderImplPtr;
+  ReaderImplPtr impl_;
+  explicit Reader(ReaderImplPtr);
 
-    friend class PulsarFriend;
-    friend class PulsarWrapper;
-    friend class ReaderImpl;
-    friend class ReaderTest;
+  friend class PulsarFriend;
+  friend class PulsarWrapper;
+  friend class ReaderImpl;
+  friend class ReaderTest;
 };
-
 }
 
 #pragma GCC visibility pop

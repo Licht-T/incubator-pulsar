@@ -28,9 +28,8 @@ typedef boost::weak_ptr<ProducerImplBase> ProducerImplBaseWeakPtr;
 typedef boost::shared_ptr<ProducerImplBase> ProducerImplBasePtr;
 
 class ProducerImplBase {
-public:
-  virtual ~ProducerImplBase(){
-  }
+ public:
+  virtual ~ProducerImplBase() {}
 
   virtual const std::string& getProducerName() const = 0;
 
@@ -45,4 +44,4 @@ public:
   virtual Future<Result, ProducerImplBaseWeakPtr> getProducerCreatedFuture() = 0;
 };
 }
-#endif //PULSAR_PRODUCER_IMPL_BASE_HEADER
+#endif  // PULSAR_PRODUCER_IMPL_BASE_HEADER

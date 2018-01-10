@@ -16,16 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include "lib/ConsumerImpl.h"
 #include <string>
+#include "lib/ConsumerImpl.h"
 
 using std::string;
 
-namespace pulsar{
+namespace pulsar {
 class ConsumerTest {
-    public:
-    static int getNumOfMessagesInQueue(const Consumer& consumer) {
-        return consumer.impl_->getNumOfPrefetchedMessages();
-    }
+ public:
+  static int getNumOfMessagesInQueue(const Consumer& consumer) {
+    return consumer.impl_->getNumOfPrefetchedMessages();
+  }
 };
 }

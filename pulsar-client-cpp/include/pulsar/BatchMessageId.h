@@ -30,42 +30,37 @@ class PulsarWrapper;
 
 class BatchMessageId : public MessageId {
  public:
-    BatchMessageId(int64_t ledgerId, int64_t entryId, int batchIndex = -1)
-            : MessageId(ledgerId, entryId),
-              batchIndex_(batchIndex) {
-    }
+  BatchMessageId(int64_t ledgerId, int64_t entryId, int batchIndex = -1)
+      : MessageId(ledgerId, entryId), batchIndex_(batchIndex) {}
 
-    BatchMessageId(const MessageId& msgId);
+  BatchMessageId(const MessageId& msgId);
 
-    BatchMessageId()
-            : batchIndex_(-1) {
-    }
+  BatchMessageId() : batchIndex_(-1) {}
 
-    virtual void serialize(std::string& result) const;
+  virtual void serialize(std::string& result) const;
 
-    // These functions compare the message order as stored in bookkeeper
-    bool operator<(const BatchMessageId& other) const;
-    bool operator<=(const BatchMessageId& other) const;
-    bool operator==(const BatchMessageId& other) const;
+  // These functions compare the message order as stored in bookkeeper
+  bool operator<(const BatchMessageId& other) const;
+  bool operator<=(const BatchMessageId& other) const;
+  bool operator==(const BatchMessageId& other) const;
 
-  protected:
-    virtual int64_t getBatchIndex() const;
+ protected:
+  virtual int64_t getBatchIndex() const;
 
-    friend class Commands;
-    friend class ConsumerImpl;
-    friend class ReaderImpl;
-    friend class Message;
-    friend class MessageImpl;
-    friend class PartitionedProducerImpl;
-    friend class PartitionedConsumerImpl;
-    friend class BatchAcknowledgementTracker;
-    friend class PulsarWrapper;
-    friend class PulsarFriend;
-    int64_t batchIndex_;
+  friend class Commands;
+  friend class ConsumerImpl;
+  friend class ReaderImpl;
+  friend class Message;
+  friend class MessageImpl;
+  friend class PartitionedProducerImpl;
+  friend class PartitionedConsumerImpl;
+  friend class BatchAcknowledgementTracker;
+  friend class PulsarWrapper;
+  friend class PulsarFriend;
+  int64_t batchIndex_;
 
-    friend std::ostream& operator<<(std::ostream& s, const BatchMessageId& messageId);
+  friend std::ostream& operator<<(std::ostream& s, const BatchMessageId& messageId);
 };
-
 }
 #pragma GCC visibility pop
 

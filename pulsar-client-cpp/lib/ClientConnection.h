@@ -21,28 +21,28 @@
 
 #include <pulsar/Result.h>
 
+#include <boost/any.hpp>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include <boost/any.hpp>
+#include <boost/function.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-#include <boost/function.hpp>
+#include <deque>
 #include <string>
 #include <vector>
-#include <deque>
 
-#include "ExecutorService.h"
-#include "Future.h"
-#include "PulsarApi.pb.h"
+#include <lib/BrokerConsumerStatsImpl.h>
+#include <pulsar/Client.h>
 #include <pulsar/Result.h>
-#include "SharedBuffer.h"
+#include <set>
 #include "Backoff.h"
 #include "Commands.h"
+#include "ExecutorService.h"
+#include "Future.h"
 #include "LookupDataResult.h"
+#include "PulsarApi.pb.h"
+#include "SharedBuffer.h"
 #include "UtilAllocator.h"
-#include <pulsar/Client.h>
-#include <set>
-#include <lib/BrokerConsumerStatsImpl.h>
 
 using namespace pulsar;
 
@@ -71,224 +71,226 @@ struct OpSendMsg;
 typedef std::pair<std::string, int64_t> ResponseData;
 
 class ClientConnection : public boost::enable_shared_from_this<ClientConnection> {
-    enum State {
-        Pending,
-        TcpConnected,
-        Ready,
-        Disconnected
-    };
+  enum State { Pending, TcpConnected, Ready, Disconnected };
 
  public:
-    typedef boost::shared_ptr<boost::asio::ip::tcp::socket> SocketPtr;
-    typedef boost::shared_ptr<boost::asio::ssl::stream<boost::asio::ip::tcp::socket&> > TlsSocketPtr;
-    typedef boost::shared_ptr<ClientConnection> ConnectionPtr;
-    typedef boost::function<void(const boost::system::error_code&, ConnectionPtr)> ConnectionListener;
-    typedef std::vector<ConnectionListener>::iterator ListenerIterator;
+  typedef boost::shared_ptr<boost::asio::ip::tcp::socket> SocketPtr;
+  typedef boost::shared_ptr<boost::asio::ssl::stream<boost::asio::ip::tcp::socket&> >
+      TlsSocketPtr;
+  typedef boost::shared_ptr<ClientConnection> ConnectionPtr;
+  typedef boost::function<void(const boost::system::error_code&, ConnectionPtr)>
+      ConnectionListener;
+  typedef std::vector<ConnectionListener>::iterator ListenerIterator;
 
-    /*
-     *  endpoint  -  url of the service, for ex. pulsar://localhost:6650
-     *  connected -  set when tcp connection is established
-     *
-     */
-    ClientConnection(const std::string& endpoint, ExecutorServicePtr executor,
-                     const ClientConfiguration& clientConfiguration, const AuthenticationPtr& authentication);
-    ~ClientConnection();
+  /*
+   *  endpoint  -  url of the service, for ex. pulsar://localhost:6650
+   *  connected -  set when tcp connection is established
+   *
+   */
+  ClientConnection(const std::string& endpoint, ExecutorServicePtr executor,
+                   const ClientConfiguration& clientConfiguration,
+                   const AuthenticationPtr& authentication);
+  ~ClientConnection();
 
-    /*
-     * starts tcp connect_async
-     * @return future<ConnectionPtr> which is not yet set
-     */
-    void tcpConnectAsync();
+  /*
+   * starts tcp connect_async
+   * @return future<ConnectionPtr> which is not yet set
+   */
+  void tcpConnectAsync();
 
-    void close();
+  void close();
 
-    bool isClosed() const;
+  bool isClosed() const;
 
-    Future<Result, ClientConnectionWeakPtr> getConnectFuture();
+  Future<Result, ClientConnectionWeakPtr> getConnectFuture();
 
-    Future<Result, ClientConnectionWeakPtr> getCloseFuture();
+  Future<Result, ClientConnectionWeakPtr> getCloseFuture();
 
-    void newTopicLookup(const std::string& destinationName, bool authoritative, const uint64_t requestId,
-                   LookupDataResultPromisePtr promise);
+  void newTopicLookup(const std::string& destinationName, bool authoritative,
+                      const uint64_t requestId, LookupDataResultPromisePtr promise);
 
-    void newPartitionedMetadataLookup(const std::string& destinationName, const uint64_t requestId,
-                                      LookupDataResultPromisePtr promise);
+  void newPartitionedMetadataLookup(const std::string& destinationName,
+                                    const uint64_t requestId,
+                                    LookupDataResultPromisePtr promise);
 
-    void sendCommand(const SharedBuffer& cmd);
-    void sendMessage(const OpSendMsg& opSend);
+  void sendCommand(const SharedBuffer& cmd);
+  void sendMessage(const OpSendMsg& opSend);
 
-    void registerProducer(int producerId, ProducerImplPtr producer);
-    void registerConsumer(int consumerId, ConsumerImplPtr consumer);
+  void registerProducer(int producerId, ProducerImplPtr producer);
+  void registerConsumer(int consumerId, ConsumerImplPtr consumer);
 
-    void removeProducer(int producerId);
-    void removeConsumer(int consumerId);
+  void removeProducer(int producerId);
+  void removeConsumer(int consumerId);
 
-    /**
-     * Send a request with a specific Id over the connection. The future will be
-     * triggered when the response for this request is received
-     */
-    Future<Result, ResponseData> sendRequestWithId(SharedBuffer cmd, int requestId);
+  /**
+   * Send a request with a specific Id over the connection. The future will be
+   * triggered when the response for this request is received
+   */
+  Future<Result, ResponseData> sendRequestWithId(SharedBuffer cmd, int requestId);
 
-    const std::string& brokerAddress() const;
+  const std::string& brokerAddress() const;
 
-    const std::string& cnxString() const;
+  const std::string& cnxString() const;
 
-    int getServerProtocolVersion() const;
+  int getServerProtocolVersion() const;
 
-    Commands::ChecksumType getChecksumType() const;
+  Commands::ChecksumType getChecksumType() const;
 
-    Future<Result, BrokerConsumerStatsImpl> newConsumerStats(uint64_t consumerId, uint64_t requestId) ;
+  Future<Result, BrokerConsumerStatsImpl> newConsumerStats(uint64_t consumerId,
+                                                           uint64_t requestId);
+
  private:
-    struct PendingRequestData {
-        Promise<Result, ResponseData> promise;
-        DeadlineTimerPtr timer;
-    };
+  struct PendingRequestData {
+    Promise<Result, ResponseData> promise;
+    DeadlineTimerPtr timer;
+  };
 
-    /*
-     * handler for connectAsync
-     * creates a ConnectionPtr which has a valid ClientConnection object
-     * although not usable at this point, since this is just tcp connection
-     * Pulsar - Connect/Connected has yet to happen
-     */
-    void handleTcpConnected(const boost::system::error_code& err,
-                            boost::asio::ip::tcp::resolver::iterator endpointIterator);
+  /*
+   * handler for connectAsync
+   * creates a ConnectionPtr which has a valid ClientConnection object
+   * although not usable at this point, since this is just tcp connection
+   * Pulsar - Connect/Connected has yet to happen
+   */
+  void handleTcpConnected(const boost::system::error_code& err,
+                          boost::asio::ip::tcp::resolver::iterator endpointIterator);
 
-    void handleHandshake(const boost::system::error_code& err);
+  void handleHandshake(const boost::system::error_code& err);
 
-    void handleSentPulsarConnect(const boost::system::error_code& err, const SharedBuffer& buffer);
+  void handleSentPulsarConnect(const boost::system::error_code& err,
+                               const SharedBuffer& buffer);
 
-    void readNextCommand();
+  void readNextCommand();
 
-    void handleRead(const boost::system::error_code& err, size_t bytesTransferred, uint32_t minReadSize);
+  void handleRead(const boost::system::error_code& err, size_t bytesTransferred,
+                  uint32_t minReadSize);
 
-    void processIncomingBuffer();
-    bool verifyChecksum(SharedBuffer& incomingBuffer_, proto::BaseCommand& incomingCmd_);
+  void processIncomingBuffer();
+  bool verifyChecksum(SharedBuffer& incomingBuffer_, proto::BaseCommand& incomingCmd_);
 
-    void handleIncomingCommand();
-    void handleIncomingMessage(const proto::CommandMessage& msg, bool isChecksumValid,
-                               proto::MessageMetadata& msgMetadata, SharedBuffer& payload);
+  void handleIncomingCommand();
+  void handleIncomingMessage(const proto::CommandMessage& msg, bool isChecksumValid,
+                             proto::MessageMetadata& msgMetadata, SharedBuffer& payload);
 
-    void handlePulsarConnected(const proto::CommandConnected& cmdConnected);
+  void handlePulsarConnected(const proto::CommandConnected& cmdConnected);
 
-    void handleResolve(const boost::system::error_code& err,
-                       boost::asio::ip::tcp::resolver::iterator endpointIterator);
+  void handleResolve(const boost::system::error_code& err,
+                     boost::asio::ip::tcp::resolver::iterator endpointIterator);
 
-    void handleSend(const boost::system::error_code& err, const SharedBuffer& cmd);
-    void handleSendPair(const boost::system::error_code& err);
-    void sendPendingCommands();
-    void newLookup(const SharedBuffer& cmd, const uint64_t requestId,
-                   LookupDataResultPromisePtr promise);
+  void handleSend(const boost::system::error_code& err, const SharedBuffer& cmd);
+  void handleSendPair(const boost::system::error_code& err);
+  void sendPendingCommands();
+  void newLookup(const SharedBuffer& cmd, const uint64_t requestId,
+                 LookupDataResultPromisePtr promise);
 
+  void handleRequestTimeout(const boost::system::error_code& ec,
+                            PendingRequestData pendingRequestData);
 
-    void handleRequestTimeout(const boost::system::error_code& ec, PendingRequestData pendingRequestData);
+  void handleKeepAliveTimeout();
 
-    void handleKeepAliveTimeout();
+  template <typename Handler>
+  inline AllocHandler<Handler> customAllocReadHandler(Handler h) {
+    return AllocHandler<Handler>(readHandlerAllocator_, h);
+  }
 
-    template<typename Handler>
-    inline AllocHandler<Handler> customAllocReadHandler(Handler h) {
-        return AllocHandler<Handler>(readHandlerAllocator_, h);
+  template <typename Handler>
+  inline AllocHandler<Handler> customAllocWriteHandler(Handler h) {
+    return AllocHandler<Handler>(writeHandlerAllocator_, h);
+  }
+
+  template <typename ConstBufferSequence, typename WriteHandler>
+  inline void asyncWrite(const ConstBufferSequence& buffers, WriteHandler handler) {
+    if (tlsSocket_) {
+      boost::asio::async_write(*tlsSocket_, buffers, handler);
+    } else {
+      boost::asio::async_write(*socket_, buffers, handler);
     }
+  }
 
-    template<typename Handler>
-    inline AllocHandler<Handler> customAllocWriteHandler(Handler h) {
-        return AllocHandler<Handler>(writeHandlerAllocator_, h);
+  template <typename MutableBufferSequence, typename ReadHandler>
+  inline void asyncReceive(const MutableBufferSequence& buffers, ReadHandler handler) {
+    if (tlsSocket_) {
+      tlsSocket_->async_read_some(buffers, handler);
+    } else {
+      socket_->async_receive(buffers, handler);
     }
+  }
 
-    template<typename ConstBufferSequence, typename WriteHandler>
-    inline void asyncWrite(const ConstBufferSequence &buffers, WriteHandler handler) {
-        if (tlsSocket_) {
-            boost::asio::async_write(*tlsSocket_, buffers, handler);
-        } else {
-            boost::asio::async_write(*socket_, buffers, handler);
-        }
-    }
+  State state_;
+  TimeDuration operationsTimeout_;
+  AuthenticationPtr authentication_;
+  int serverProtocolVersion_;
 
-    template<typename MutableBufferSequence, typename ReadHandler>
-    inline void asyncReceive(const MutableBufferSequence &buffers, ReadHandler handler) {
-        if (tlsSocket_) {
-            tlsSocket_->async_read_some(buffers, handler);
-        } else {
-            socket_->async_receive(buffers, handler);
-        }
-    }
+  ExecutorServicePtr executor_;
 
-    State state_;
-    TimeDuration operationsTimeout_;
-    AuthenticationPtr authentication_;
-    int serverProtocolVersion_;
+  TcpResolverPtr resolver_;
 
-    ExecutorServicePtr executor_;
+  /*
+   *  tcp connection socket to the pulsar broker
+   */
+  SocketPtr socket_;
+  TlsSocketPtr tlsSocket_;
+  /*
+   *  stores address of the service, for ex. pulsar://localhost:6650
+   */
+  const std::string address_;
 
-    TcpResolverPtr resolver_;
+  // Represent both endpoint of the tcp connection. eg: [client:1234 -> server:6650]
+  std::string cnxString_;
 
-    /*
-     *  tcp connection socket to the pulsar broker
-     */
-    SocketPtr socket_;
-    TlsSocketPtr tlsSocket_;
-    /*
-     *  stores address of the service, for ex. pulsar://localhost:6650
-     */
-    const std::string address_;
+  /*
+   *  indicates if async connection establishment failed
+   */
+  boost::system::error_code error_;
 
-    // Represent both endpoint of the tcp connection. eg: [client:1234 -> server:6650]
-    std::string cnxString_;
+  SharedBuffer incomingBuffer_;
+  proto::BaseCommand incomingCmd_;
 
-    /*
-     *  indicates if async connection establishment failed
-     */
-    boost::system::error_code error_;
+  Promise<Result, ClientConnectionWeakPtr> connectPromise_;
 
-    SharedBuffer incomingBuffer_;
-    proto::BaseCommand incomingCmd_;
+  typedef std::map<long, PendingRequestData> PendingRequestsMap;
+  PendingRequestsMap pendingRequests_;
 
-    Promise<Result, ClientConnectionWeakPtr> connectPromise_;
+  typedef std::map<long, LookupDataResultPromisePtr> PendingLookupRequestsMap;
+  PendingLookupRequestsMap pendingLookupRequests_;
 
-    typedef std::map<long, PendingRequestData> PendingRequestsMap;
-    PendingRequestsMap pendingRequests_;
+  typedef std::map<long, ProducerImplWeakPtr> ProducersMap;
+  ProducersMap producers_;
 
-    typedef std::map<long, LookupDataResultPromisePtr> PendingLookupRequestsMap;
-    PendingLookupRequestsMap pendingLookupRequests_;
+  typedef std::map<long, ConsumerImplWeakPtr> ConsumersMap;
+  ConsumersMap consumers_;
 
-    typedef std::map<long, ProducerImplWeakPtr> ProducersMap;
-    ProducersMap producers_;
+  typedef std::map<uint64_t, Promise<Result, BrokerConsumerStatsImpl> >
+      PendingConsumerStatsMap;
+  PendingConsumerStatsMap pendingConsumerStatsMap_;
 
-    typedef std::map<long, ConsumerImplWeakPtr> ConsumersMap;
-    ConsumersMap consumers_;
+  boost::mutex mutex_;
+  typedef boost::unique_lock<boost::mutex> Lock;
 
-    typedef std::map<uint64_t, Promise<Result, BrokerConsumerStatsImpl> > PendingConsumerStatsMap;
-    PendingConsumerStatsMap pendingConsumerStatsMap_;
+  // Pending buffers to write on the socket
+  std::deque<boost::any> pendingWriteBuffers_;
+  int pendingWriteOperations_;
 
+  SharedBuffer outgoingBuffer_;
+  proto::BaseCommand outgoingCmd_;
 
-    boost::mutex mutex_;
-    typedef boost::unique_lock<boost::mutex> Lock;
+  HandlerAllocator readHandlerAllocator_;
+  HandlerAllocator writeHandlerAllocator_;
 
-    // Pending buffers to write on the socket
-    std::deque<boost::any> pendingWriteBuffers_;
-    int pendingWriteOperations_;
+  // Signals whether we're waiting for a response from broker
+  bool havePendingPingRequest_;
+  DeadlineTimerPtr keepAliveTimer_;
+  DeadlineTimerPtr consumerStatsRequestTimer_;
 
-    SharedBuffer outgoingBuffer_;
-    proto::BaseCommand outgoingCmd_;
+  void handleConsumerStatsTimeout(const boost::system::error_code& ec,
+                                  std::vector<uint64_t> consumerStatsRequests);
 
-    HandlerAllocator readHandlerAllocator_;
-    HandlerAllocator writeHandlerAllocator_;
+  void startConsumerStatsTimer(std::vector<uint64_t> consumerStatsRequests);
+  uint32_t maxPendingLookupRequest_;
+  uint32_t numOfPendingLookupRequest_;
+  friend class PulsarFriend;
 
-    // Signals whether we're waiting for a response from broker
-    bool havePendingPingRequest_;
-    DeadlineTimerPtr keepAliveTimer_;
-    DeadlineTimerPtr consumerStatsRequestTimer_;
-
-    void handleConsumerStatsTimeout(const boost::system::error_code &ec,
-                                    std::vector<uint64_t> consumerStatsRequests);
-
-    void startConsumerStatsTimer(std::vector<uint64_t> consumerStatsRequests);
-    uint32_t maxPendingLookupRequest_;
-    uint32_t numOfPendingLookupRequest_;
-    friend class PulsarFriend;
-
-    bool isTlsAllowInsecureConnection_;
+  bool isTlsAllowInsecureConnection_;
 };
-
 }
 
-#endif//_PULSAR_CLIENT_CONNECTION_HEADER_
+#endif  //_PULSAR_CLIENT_CONNECTION_HEADER_

@@ -21,32 +21,31 @@
 
 #include "ServiceUnitId.h"
 
-#include <string>
 #include <boost/shared_ptr.hpp>
-
+#include <string>
 
 #pragma GCC visibility push(default)
 
 class NamespaceName : public ServiceUnitId {
  public:
-    boost::shared_ptr<NamespaceName> getNamespaceObject();
-    std::string getProperty();
-    std::string getCluster();
-    std::string getLocalName();
-    static boost::shared_ptr<NamespaceName> get(const std::string& property,
-                                                const std::string& cluster,
-                                                const std::string& namespaceName);
-    bool operator ==(const NamespaceName& namespaceName);
+  boost::shared_ptr<NamespaceName> getNamespaceObject();
+  std::string getProperty();
+  std::string getCluster();
+  std::string getLocalName();
+  static boost::shared_ptr<NamespaceName> get(const std::string& property,
+                                              const std::string& cluster,
+                                              const std::string& namespaceName);
+  bool operator==(const NamespaceName& namespaceName);
 
  private:
-    std::string namespace_;
-    std::string property_;
-    std::string cluster_;
-    std::string localName_;
-    static bool validateNamespace(const std::string& property, const std::string& cluster,
-                                  const std::string& namespace_);
-    NamespaceName(const std::string& property, const std::string& cluster,
-                  const std::string& namespace_);
+  std::string namespace_;
+  std::string property_;
+  std::string cluster_;
+  std::string localName_;
+  static bool validateNamespace(const std::string& property, const std::string& cluster,
+                                const std::string& namespace_);
+  NamespaceName(const std::string& property, const std::string& cluster,
+                const std::string& namespace_);
 };
 
 #pragma GCC visibility pop

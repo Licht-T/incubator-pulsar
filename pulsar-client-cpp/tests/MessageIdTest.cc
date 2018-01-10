@@ -25,12 +25,12 @@
 using namespace pulsar;
 
 TEST(MessageIdTest, testSerialization) {
-    BatchMessageId msgId(1, 2, 3);
+  BatchMessageId msgId(1, 2, 3);
 
-    std::string serialized;
-    msgId.serialize(serialized);
+  std::string serialized;
+  msgId.serialize(serialized);
 
-    boost::shared_ptr<MessageId> deserialized = MessageId::deserialize(serialized);
+  boost::shared_ptr<MessageId> deserialized = MessageId::deserialize(serialized);
 
-    ASSERT_EQ(msgId, static_cast<const BatchMessageId&>(*deserialized));
+  ASSERT_EQ(msgId, static_cast<const BatchMessageId&>(*deserialized));
 }

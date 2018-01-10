@@ -21,63 +21,59 @@
 
 #include "PulsarApi.pb.h"
 
-#include <tuple>
 #include <iostream>
+#include <tuple>
 
 namespace pulsar {
 
-BatchMessageId::BatchMessageId(const MessageId& msgId) :
-        MessageId(msgId.ledgerId_, msgId.entryId_), batchIndex_(msgId.getBatchIndex()) {
-}
+BatchMessageId::BatchMessageId(const MessageId& msgId)
+    : MessageId(msgId.ledgerId_, msgId.entryId_), batchIndex_(msgId.getBatchIndex()) {}
 
 void BatchMessageId::serialize(std::string& result) const {
-    proto::MessageIdData idData;
-    idData.set_ledgerid(ledgerId_);
-    idData.set_entryid(entryId_);
-    idData.set_batch_index(batchIndex_);
+  proto::MessageIdData idData;
+  idData.set_ledgerid(ledgerId_);
+  idData.set_entryid(entryId_);
+  idData.set_batch_index(batchIndex_);
 
-    if (partition_ != -1) {
-        idData.set_partition(partition_);
-    }
+  if (partition_ != -1) {
+    idData.set_partition(partition_);
+  }
 
-    idData.SerializeToString(&result);
+  idData.SerializeToString(&result);
 }
 
-int64_t BatchMessageId::getBatchIndex() const {
-    return batchIndex_;
-}
+int64_t BatchMessageId::getBatchIndex() const { return batchIndex_; }
 
 #pragma GCC visibility push(default)
 
 bool BatchMessageId::operator<(const BatchMessageId& other) const {
-    if (ledgerId_ < other.ledgerId_) {
-        return true;
-    } else if (ledgerId_ > other.ledgerId_) {
-        return false;
-    }
+  if (ledgerId_ < other.ledgerId_) {
+    return true;
+  } else if (ledgerId_ > other.ledgerId_) {
+    return false;
+  }
 
-    if (entryId_ < other.entryId_) {
-        return true;
-    } else {
-        return false;
-    }
+  if (entryId_ < other.entryId_) {
+    return true;
+  } else {
+    return false;
+  }
 }
 
 bool BatchMessageId::operator<=(const BatchMessageId& other) const {
-    return *this < other || *this == other;
+  return *this < other || *this == other;
 }
 
 bool BatchMessageId::operator==(const BatchMessageId& other) const {
-    return ledgerId_ == other.ledgerId_ && entryId_ == other.entryId_
-            && batchIndex_ == other.batchIndex_;
+  return ledgerId_ == other.ledgerId_ && entryId_ == other.entryId_ &&
+         batchIndex_ == other.batchIndex_;
 }
 
 std::ostream& operator<<(std::ostream& s, const BatchMessageId& messageId) {
-    s << '(' << messageId.ledgerId_ << ':' << messageId.entryId_ << ':' << messageId.batchIndex_
-      << ':' << messageId.partition_ << ')';
-    return s;
+  s << '(' << messageId.ledgerId_ << ':' << messageId.entryId_ << ':'
+    << messageId.batchIndex_ << ':' << messageId.partition_ << ')';
+  return s;
 }
 
 #pragma GCC visibility pop
-
 }

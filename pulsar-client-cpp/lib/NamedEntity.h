@@ -23,8 +23,9 @@
 
 class NamedEntity {
  private:
-    static const boost::regex pattern;
+  static const boost::regex pattern;
+
  public:
-    static bool checkName(const std::string& name);
+  static bool checkName(const std::string& name);
 };
 #endif

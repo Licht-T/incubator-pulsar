@@ -16,85 +16,77 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include <pulsar/BrokerConsumerStats.h>
 #include <lib/BrokerConsumerStatsImplBase.h>
+#include <pulsar/BrokerConsumerStats.h>
 
 namespace pulsar {
-BrokerConsumerStats::BrokerConsumerStats(boost::shared_ptr<BrokerConsumerStatsImplBase> impl)
-        : impl_(impl) {
-}
+BrokerConsumerStats::BrokerConsumerStats(
+    boost::shared_ptr<BrokerConsumerStatsImplBase> impl)
+    : impl_(impl) {}
 
-BrokerConsumerStats::BrokerConsumerStats() {
-}
+BrokerConsumerStats::BrokerConsumerStats() {}
 
 boost::shared_ptr<BrokerConsumerStatsImplBase> BrokerConsumerStats::getImpl() const {
-    return impl_;
+  return impl_;
 }
 
-bool BrokerConsumerStats::isValid() const {
-    return impl_->isValid();
-}
+bool BrokerConsumerStats::isValid() const { return impl_->isValid(); }
 
 #pragma GCC visibility push(default)
-std::ostream& operator<<(std::ostream &os, const BrokerConsumerStats& obj) {
-    os << "\nBrokerConsumerStats [" << "validTill_ = " << obj.isValid() << ", msgRateOut_ = "
-       << obj.getMsgRateOut() << ", msgThroughputOut_ = " << obj.getMsgThroughputOut()
-       << ", msgRateRedeliver_ = " << obj.getMsgRateRedeliver() << ", consumerName_ = "
-       << obj.getConsumerName() << ", availablePermits_ = " << obj.getAvailablePermits()
-       << ", unackedMessages_ = " << obj.getUnackedMessages()
-       << ", blockedConsumerOnUnackedMsgs_ = " << obj.isBlockedConsumerOnUnackedMsgs()
-       << ", address_ = " << obj.getAddress() << ", connectedSince_ = " << obj.getConnectedSince()
-       << ", type_ = " << obj.getType() << ", msgRateExpired_ = " << obj.getMsgRateExpired()
-       << ", msgBacklog_ = " << obj.getMsgBacklog() << "]";
-    return os;
+std::ostream& operator<<(std::ostream& os, const BrokerConsumerStats& obj) {
+  os << "\nBrokerConsumerStats ["
+     << "validTill_ = " << obj.isValid() << ", msgRateOut_ = " << obj.getMsgRateOut()
+     << ", msgThroughputOut_ = " << obj.getMsgThroughputOut()
+     << ", msgRateRedeliver_ = " << obj.getMsgRateRedeliver()
+     << ", consumerName_ = " << obj.getConsumerName()
+     << ", availablePermits_ = " << obj.getAvailablePermits()
+     << ", unackedMessages_ = " << obj.getUnackedMessages()
+     << ", blockedConsumerOnUnackedMsgs_ = " << obj.isBlockedConsumerOnUnackedMsgs()
+     << ", address_ = " << obj.getAddress()
+     << ", connectedSince_ = " << obj.getConnectedSince() << ", type_ = " << obj.getType()
+     << ", msgRateExpired_ = " << obj.getMsgRateExpired()
+     << ", msgBacklog_ = " << obj.getMsgBacklog() << "]";
+  return os;
 }
 #pragma GCC visibility pop
 
-double BrokerConsumerStats::getMsgRateOut() const {
-    return impl_->getMsgRateOut();
-}
+double BrokerConsumerStats::getMsgRateOut() const { return impl_->getMsgRateOut(); }
 
 double BrokerConsumerStats::getMsgThroughputOut() const {
-    return impl_->getMsgThroughputOut();
+  return impl_->getMsgThroughputOut();
 }
 
 double BrokerConsumerStats::getMsgRateRedeliver() const {
-    return impl_->getMsgRateRedeliver();
+  return impl_->getMsgRateRedeliver();
 }
 
 const std::string BrokerConsumerStats::getConsumerName() const {
-    return impl_->getConsumerName();
+  return impl_->getConsumerName();
 }
 
 uint64_t BrokerConsumerStats::getAvailablePermits() const {
-    return impl_->getAvailablePermits();
+  return impl_->getAvailablePermits();
 }
 
 uint64_t BrokerConsumerStats::getUnackedMessages() const {
-    return impl_->getUnackedMessages();
+  return impl_->getUnackedMessages();
 }
 
 bool BrokerConsumerStats::isBlockedConsumerOnUnackedMsgs() const {
-    return impl_->isBlockedConsumerOnUnackedMsgs();
+  return impl_->isBlockedConsumerOnUnackedMsgs();
 }
 
-const std::string BrokerConsumerStats::getAddress() const {
-    return impl_->getAddress();
-}
+const std::string BrokerConsumerStats::getAddress() const { return impl_->getAddress(); }
 
 const std::string BrokerConsumerStats::getConnectedSince() const {
-    return impl_->getConnectedSince();
+  return impl_->getConnectedSince();
 }
 
-const ConsumerType BrokerConsumerStats::getType() const {
-    return impl_->getType();
-}
+const ConsumerType BrokerConsumerStats::getType() const { return impl_->getType(); }
 
 double BrokerConsumerStats::getMsgRateExpired() const {
-    return impl_->getMsgRateExpired();
+  return impl_->getMsgRateExpired();
 }
 
-uint64_t BrokerConsumerStats::getMsgBacklog() const {
-    return impl_->getMsgBacklog();
-}
+uint64_t BrokerConsumerStats::getMsgBacklog() const { return impl_->getMsgBacklog(); }
 }

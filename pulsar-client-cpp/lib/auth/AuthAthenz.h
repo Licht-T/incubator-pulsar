@@ -19,39 +19,38 @@
 #ifndef PULSAR_AUTH_ATHENZ_H_
 #define PULSAR_AUTH_ATHENZ_H_
 
-#include <pulsar/Authentication.h>
-#include <lib/auth/athenz/ZTSClient.h>
 #include <lib/LogUtils.h>
+#include <lib/auth/athenz/ZTSClient.h>
+#include <pulsar/Authentication.h>
 #include <iostream>
 #include <string>
 
 namespace pulsar {
-    
-    class AuthDataAthenz : public AuthenticationDataProvider {
-        
-    public:
-        AuthDataAthenz(ParamMap& params);
-        bool hasDataForHttp();
-        std::string getHttpHeaders();
-        bool hasDataFromCommand();
-        std::string getCommandData();
-        ~AuthDataAthenz();
-    private:
-        boost::shared_ptr<ZTSClient> ztsClient_;
-    };
-    
-    class AuthAthenz : public Authentication {
-        
-    public:
-        AuthAthenz(AuthenticationDataPtr&);
-        ~AuthAthenz();
-        static AuthenticationPtr create(ParamMap& params);
-        static AuthenticationPtr create(const std::string& authParamsString);
-        const std::string getAuthMethodName() const;
-        Result getAuthData(AuthenticationDataPtr& authDataAthenz) const;
-    private:
-        AuthenticationDataPtr authDataAthenz_;
-    };
-    
+
+class AuthDataAthenz : public AuthenticationDataProvider {
+ public:
+  AuthDataAthenz(ParamMap& params);
+  bool hasDataForHttp();
+  std::string getHttpHeaders();
+  bool hasDataFromCommand();
+  std::string getCommandData();
+  ~AuthDataAthenz();
+
+ private:
+  boost::shared_ptr<ZTSClient> ztsClient_;
+};
+
+class AuthAthenz : public Authentication {
+ public:
+  AuthAthenz(AuthenticationDataPtr&);
+  ~AuthAthenz();
+  static AuthenticationPtr create(ParamMap& params);
+  static AuthenticationPtr create(const std::string& authParamsString);
+  const std::string getAuthMethodName() const;
+  Result getAuthData(AuthenticationDataPtr& authDataAthenz) const;
+
+ private:
+  AuthenticationDataPtr authDataAthenz_;
+};
 }
 #endif /* PULSAR_AUTH_ATHENZ_H_ */

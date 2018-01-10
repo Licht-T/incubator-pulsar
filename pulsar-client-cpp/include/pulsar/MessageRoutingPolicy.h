@@ -18,8 +18,8 @@
  */
 #ifndef PULSAR_MESSAGE_ROUTING_POLICY_HEADER_
 #define PULSAR_MESSAGE_ROUTING_POLICY_HEADER_
-#include "Message.h"
 #include <boost/shared_ptr.hpp>
+#include "Message.h"
 
 #pragma GCC visibility push(default)
 
@@ -31,9 +31,9 @@ namespace pulsar {
 
 class MessageRoutingPolicy {
  public:
-    virtual ~MessageRoutingPolicy() {}
+  virtual ~MessageRoutingPolicy() {}
 
-    virtual int getPartition(const Message& msg) = 0;
+  virtual int getPartition(const Message& msg) = 0;
 };
 
 typedef boost::shared_ptr<MessageRoutingPolicy> MessageRoutingPolicyPtr;
@@ -41,4 +41,4 @@ typedef boost::shared_ptr<MessageRoutingPolicy> MessageRoutingPolicyPtr;
 
 #pragma GCC visibility pop
 
-#endif // PULSAR_MESSAGE_ROUTING_POLICY_HEADER_
+#endif  // PULSAR_MESSAGE_ROUTING_POLICY_HEADER_

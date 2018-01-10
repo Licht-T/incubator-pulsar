@@ -26,50 +26,52 @@ namespace pulsar {
 
 ConnectionPool::ConnectionPool(const ClientConfiguration& conf,
                                ExecutorServiceProviderPtr executorProvider,
-                               const AuthenticationPtr& authentication, bool poolConnections)
-        : clientConfiguration_(conf),
-          executorProvider_(executorProvider),
-          authentication_(authentication),
-          pool_(),
-          poolConnections_(poolConnections),
-          mutex_() {
-}
+                               const AuthenticationPtr& authentication,
+                               bool poolConnections)
+    : clientConfiguration_(conf),
+      executorProvider_(executorProvider),
+      authentication_(authentication),
+      pool_(),
+      poolConnections_(poolConnections),
+      mutex_() {}
 
 Future<Result, ClientConnectionWeakPtr> ConnectionPool::getConnectionAsync(
-        const std::string& endpoint) {
-    boost::unique_lock<boost::mutex> lock(mutex_);
+    const std::string& endpoint) {
+  boost::unique_lock<boost::mutex> lock(mutex_);
 
-    if (poolConnections_) {
-        PoolMap::iterator cnxIt = pool_.find(endpoint);
-        if (cnxIt != pool_.end()) {
-            ClientConnectionPtr cnx = cnxIt->second.lock();
+  if (poolConnections_) {
+    PoolMap::iterator cnxIt = pool_.find(endpoint);
+    if (cnxIt != pool_.end()) {
+      ClientConnectionPtr cnx = cnxIt->second.lock();
 
-            if (cnx && !cnx->isClosed()) {
-                // Found a valid or pending connection in the pool
-                LOG_DEBUG("Got connection from pool for " << endpoint << " use_count: "  //
-                        << (cnx.use_count() - 1) << " @ " << cnx.get());
-                return cnx->getConnectFuture();
-            } else {
-                // Deleting stale connection
-                LOG_INFO("Deleting stale connection from pool for " << endpoint << " use_count: "
-                        << (cnx.use_count() - 1) << " @ " << cnx.get());
-                pool_.erase(endpoint);
-            }
-        }
+      if (cnx && !cnx->isClosed()) {
+        // Found a valid or pending connection in the pool
+        LOG_DEBUG("Got connection from pool for " << endpoint << " use_count: "  //
+                                                  << (cnx.use_count() - 1) << " @ "
+                                                  << cnx.get());
+        return cnx->getConnectFuture();
+      } else {
+        // Deleting stale connection
+        LOG_INFO("Deleting stale connection from pool for "
+                 << endpoint << " use_count: " << (cnx.use_count() - 1) << " @ "
+                 << cnx.get());
+        pool_.erase(endpoint);
+      }
     }
+  }
 
-    // No valid or pending connection found in the pool, creating a new one
-    ClientConnectionPtr cnx(new ClientConnection(endpoint, executorProvider_->get(), clientConfiguration_, authentication_));
+  // No valid or pending connection found in the pool, creating a new one
+  ClientConnectionPtr cnx(new ClientConnection(endpoint, executorProvider_->get(),
+                                               clientConfiguration_, authentication_));
 
-    LOG_INFO("Created connection for " << endpoint);
+  LOG_INFO("Created connection for " << endpoint);
 
-    Future<Result, ClientConnectionWeakPtr> future = cnx->getConnectFuture();
-    pool_.insert(std::make_pair(endpoint, cnx));
+  Future<Result, ClientConnectionWeakPtr> future = cnx->getConnectFuture();
+  pool_.insert(std::make_pair(endpoint, cnx));
 
-    lock.unlock();
+  lock.unlock();
 
-    cnx->tcpConnectAsync();
-    return future;
+  cnx->tcpConnectAsync();
+  return future;
 }
-
 }

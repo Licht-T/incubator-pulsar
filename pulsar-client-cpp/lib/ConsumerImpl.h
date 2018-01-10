@@ -19,28 +19,28 @@
 #ifndef LIB_CONSUMERIMPL_H_
 #define LIB_CONSUMERIMPL_H_
 
+#include <boost/shared_ptr.hpp>
 #include <string>
+#include "ClientConnection.h"
+#include "Commands.h"
+#include "ConsumerImplBase.h"
+#include "ExecutorService.h"
+#include "HandlerBase.h"
+#include "UnboundedBlockingQueue.h"
+#include "boost/enable_shared_from_this.hpp"
+#include "lib/UnAckedMessageTrackerDisabled.h"
+#include "lib/UnAckedMessageTrackerEnabled.h"
 #include "pulsar/BatchMessageId.h"
 #include "pulsar/Result.h"
-#include "UnboundedBlockingQueue.h"
-#include "HandlerBase.h"
-#include "boost/enable_shared_from_this.hpp"
-#include "ClientConnection.h"
-#include <boost/shared_ptr.hpp>
-#include "lib/UnAckedMessageTrackerEnabled.h"
-#include "Commands.h"
-#include "ExecutorService.h"
-#include "ConsumerImplBase.h"
-#include "lib/UnAckedMessageTrackerDisabled.h"
 
-#include "CompressionCodec.h"
+#include <lib/BrokerConsumerStatsImpl.h>
+#include <lib/stats/ConsumerStatsDisabled.h>
+#include <lib/stats/ConsumerStatsImpl.h>
 #include <boost/dynamic_bitset.hpp>
+#include <limits>
 #include <map>
 #include "BatchAcknowledgementTracker.h"
-#include <limits>
-#include <lib/BrokerConsumerStatsImpl.h>
-#include <lib/stats/ConsumerStatsImpl.h>
-#include <lib/stats/ConsumerStatsDisabled.h>
+#include "CompressionCodec.h"
 
 using namespace pulsar;
 
@@ -52,113 +52,117 @@ class BatchAcknowledgementTracker;
 typedef boost::shared_ptr<ConsumerImpl> ConsumerImplPtr;
 typedef boost::weak_ptr<ConsumerImpl> ConsumerImplWeakPtr;
 
-enum ConsumerTopicType {
-    NonPartitioned,
-    Partitioned
-};
+enum ConsumerTopicType { NonPartitioned, Partitioned };
 
- class ConsumerImpl : public ConsumerImplBase, public HandlerBase, public boost::enable_shared_from_this<ConsumerImpl> {
-
+class ConsumerImpl : public ConsumerImplBase,
+                     public HandlerBase,
+                     public boost::enable_shared_from_this<ConsumerImpl> {
  public:
-    ConsumerImpl(const ClientImplPtr client, const std::string& topic,
-                 const std::string& subscription, const ConsumerConfiguration&,
-                 const ExecutorServicePtr listenerExecutor = ExecutorServicePtr(),
-                 const ConsumerTopicType consumerTopicType = NonPartitioned,
-                 Commands::SubscriptionMode = Commands::SubscriptionModeDurable,
-                 Optional<BatchMessageId> startMessageId = Optional<BatchMessageId>::empty());
-    ~ConsumerImpl();
-    void setPartitionIndex(int partitionIndex);
-    int getPartitionIndex();
-    void receiveMessages(const ClientConnectionPtr& cnx, unsigned int count);
-    uint64_t getConsumerId();
-    void messageReceived(const ClientConnectionPtr& cnx, const proto::CommandMessage& msg,
-                         bool& isChecksumValid, proto::MessageMetadata& msgMetadata,
-                         SharedBuffer& payload);
-    int incrementAndGetPermits(uint64_t cnxSequenceId);
-    void messageProcessed(Message& msg);
-    inline proto::CommandSubscribe_SubType getSubType();
-    void unsubscribeAsync(ResultCallback callback);
-    void handleUnsubscribe(Result result, ResultCallback callback);
-    void doAcknowledge(const BatchMessageId& messageId, proto::CommandAck_AckType ackType,
-                       ResultCallback callback);
-    virtual void disconnectConsumer();
-    virtual Future<Result, ConsumerImplBaseWeakPtr> getConsumerCreatedFuture();
-    virtual const std::string& getSubscriptionName() const;
-    virtual const std::string& getTopic() const;
-    virtual Result receive(Message& msg);
-    virtual Result receive(Message& msg, int timeout);
-    Result fetchSingleMessageFromBroker(Message& msg);
-    virtual void acknowledgeAsync(const MessageId& msgId, ResultCallback callback);
-    virtual void acknowledgeCumulativeAsync(const MessageId& msgId, ResultCallback callback);
-    virtual void closeAsync(ResultCallback callback);
-    virtual void start();
-    virtual void shutdown();
-    virtual bool isClosed();
-    virtual bool isOpen();
-    virtual Result pauseMessageListener();
-    virtual Result resumeMessageListener();
-    virtual void redeliverUnacknowledgedMessages();
-    virtual void getBrokerConsumerStatsAsync(BrokerConsumerStatsCallback callback);
+  ConsumerImpl(
+      const ClientImplPtr client, const std::string& topic,
+      const std::string& subscription, const ConsumerConfiguration&,
+      const ExecutorServicePtr listenerExecutor = ExecutorServicePtr(),
+      const ConsumerTopicType consumerTopicType = NonPartitioned,
+      Commands::SubscriptionMode = Commands::SubscriptionModeDurable,
+      Optional<BatchMessageId> startMessageId = Optional<BatchMessageId>::empty());
+  ~ConsumerImpl();
+  void setPartitionIndex(int partitionIndex);
+  int getPartitionIndex();
+  void receiveMessages(const ClientConnectionPtr& cnx, unsigned int count);
+  uint64_t getConsumerId();
+  void messageReceived(const ClientConnectionPtr& cnx, const proto::CommandMessage& msg,
+                       bool& isChecksumValid, proto::MessageMetadata& msgMetadata,
+                       SharedBuffer& payload);
+  int incrementAndGetPermits(uint64_t cnxSequenceId);
+  void messageProcessed(Message& msg);
+  inline proto::CommandSubscribe_SubType getSubType();
+  void unsubscribeAsync(ResultCallback callback);
+  void handleUnsubscribe(Result result, ResultCallback callback);
+  void doAcknowledge(const BatchMessageId& messageId, proto::CommandAck_AckType ackType,
+                     ResultCallback callback);
+  virtual void disconnectConsumer();
+  virtual Future<Result, ConsumerImplBaseWeakPtr> getConsumerCreatedFuture();
+  virtual const std::string& getSubscriptionName() const;
+  virtual const std::string& getTopic() const;
+  virtual Result receive(Message& msg);
+  virtual Result receive(Message& msg, int timeout);
+  Result fetchSingleMessageFromBroker(Message& msg);
+  virtual void acknowledgeAsync(const MessageId& msgId, ResultCallback callback);
+  virtual void acknowledgeCumulativeAsync(const MessageId& msgId,
+                                          ResultCallback callback);
+  virtual void closeAsync(ResultCallback callback);
+  virtual void start();
+  virtual void shutdown();
+  virtual bool isClosed();
+  virtual bool isOpen();
+  virtual Result pauseMessageListener();
+  virtual Result resumeMessageListener();
+  virtual void redeliverUnacknowledgedMessages();
+  virtual void getBrokerConsumerStatsAsync(BrokerConsumerStatsCallback callback);
+
  protected:
-    void connectionOpened(const ClientConnectionPtr& cnx);
-    void connectionFailed(Result result);
-    void handleCreateConsumer(const ClientConnectionPtr& cnx, Result result);
+  void connectionOpened(const ClientConnectionPtr& cnx);
+  void connectionFailed(Result result);
+  void handleCreateConsumer(const ClientConnectionPtr& cnx, Result result);
 
-    void internalListener();
-    void handleClose(Result result, ResultCallback callback);
-    virtual HandlerBaseWeakPtr get_weak_from_this() {
-        return shared_from_this();
-    }
-    virtual const std::string& getName() const;
-    virtual int getNumOfPrefetchedMessages() const ;
-    ConsumerStatsBasePtr consumerStatsBasePtr_;
-private:
-    bool waitingForZeroQueueSizeMessage;
-    bool uncompressMessageIfNeeded(const ClientConnectionPtr& cnx, const proto::CommandMessage& msg,
-                                   const proto::MessageMetadata& metadata, SharedBuffer& payload);
-    void discardCorruptedMessage(const ClientConnectionPtr& cnx,
-                                 const proto::MessageIdData& messageId,
-                                 proto::CommandAck::ValidationError validationError);
-    void increaseAvailablePermits(const ClientConnectionPtr& currentCnx, int numberOfPermits = 1);
-    void drainIncomingMessageQueue(size_t count);
-    uint32_t receiveIndividualMessagesFromBatch(const ClientConnectionPtr& cnx,
-                                                Message &batchedMessage);
-    void brokerConsumerStatsListener(Result, BrokerConsumerStatsImpl, BrokerConsumerStatsCallback);
+  void internalListener();
+  void handleClose(Result result, ResultCallback callback);
+  virtual HandlerBaseWeakPtr get_weak_from_this() { return shared_from_this(); }
+  virtual const std::string& getName() const;
+  virtual int getNumOfPrefetchedMessages() const;
+  ConsumerStatsBasePtr consumerStatsBasePtr_;
 
-    // TODO - Convert these functions to lambda when we move to C++11
-    Result receiveHelper(Message& msg);
-    Result receiveHelper(Message& msg, int timeout);
-    void statsCallback(Result, ResultCallback, proto::CommandAck_AckType);
+ private:
+  bool waitingForZeroQueueSizeMessage;
+  bool uncompressMessageIfNeeded(const ClientConnectionPtr& cnx,
+                                 const proto::CommandMessage& msg,
+                                 const proto::MessageMetadata& metadata,
+                                 SharedBuffer& payload);
+  void discardCorruptedMessage(const ClientConnectionPtr& cnx,
+                               const proto::MessageIdData& messageId,
+                               proto::CommandAck::ValidationError validationError);
+  void increaseAvailablePermits(const ClientConnectionPtr& currentCnx,
+                                int numberOfPermits = 1);
+  void drainIncomingMessageQueue(size_t count);
+  uint32_t receiveIndividualMessagesFromBatch(const ClientConnectionPtr& cnx,
+                                              Message& batchedMessage);
+  void brokerConsumerStatsListener(Result, BrokerConsumerStatsImpl,
+                                   BrokerConsumerStatsCallback);
 
-    Optional<BatchMessageId> clearReceiveQueue();
+  // TODO - Convert these functions to lambda when we move to C++11
+  Result receiveHelper(Message& msg);
+  Result receiveHelper(Message& msg, int timeout);
+  void statsCallback(Result, ResultCallback, proto::CommandAck_AckType);
 
-    boost::mutex mutexForReceiveWithZeroQueueSize;
-    const ConsumerConfiguration config_;
-    const std::string subscription_;
-    std::string originalSubscriptionName_;
-    MessageListener messageListener_;
-    ExecutorServicePtr listenerExecutor_;
-    ConsumerTopicType consumerTopicType_;
+  Optional<BatchMessageId> clearReceiveQueue();
 
-    Commands::SubscriptionMode subscriptionMode_;
-    Optional<BatchMessageId> startMessageId_;
+  boost::mutex mutexForReceiveWithZeroQueueSize;
+  const ConsumerConfiguration config_;
+  const std::string subscription_;
+  std::string originalSubscriptionName_;
+  MessageListener messageListener_;
+  ExecutorServicePtr listenerExecutor_;
+  ConsumerTopicType consumerTopicType_;
 
-    Optional<BatchMessageId> lastDequedMessage_;
-    UnboundedBlockingQueue<Message> incomingMessages_;
-    int availablePermits_;
-    uint64_t consumerId_;
-    std::string consumerName_;
-    std::string consumerStr_;
-    short partitionIndex_;
-    Promise<Result, ConsumerImplBaseWeakPtr> consumerCreatedPromise_;
-    bool messageListenerRunning_;
-    boost::mutex messageListenerMutex_;
-    CompressionCodecProvider compressionCodecProvider_;
-    UnAckedMessageTrackerScopedPtr unAckedMessageTrackerPtr_;
-    BatchAcknowledgementTracker batchAcknowledgementTracker_;
-    BrokerConsumerStatsImpl brokerConsumerStats_;
+  Commands::SubscriptionMode subscriptionMode_;
+  Optional<BatchMessageId> startMessageId_;
 
-    friend class PulsarFriend;
+  Optional<BatchMessageId> lastDequedMessage_;
+  UnboundedBlockingQueue<Message> incomingMessages_;
+  int availablePermits_;
+  uint64_t consumerId_;
+  std::string consumerName_;
+  std::string consumerStr_;
+  short partitionIndex_;
+  Promise<Result, ConsumerImplBaseWeakPtr> consumerCreatedPromise_;
+  bool messageListenerRunning_;
+  boost::mutex messageListenerMutex_;
+  CompressionCodecProvider compressionCodecProvider_;
+  UnAckedMessageTrackerScopedPtr unAckedMessageTrackerPtr_;
+  BatchAcknowledgementTracker batchAcknowledgementTracker_;
+  BrokerConsumerStatsImpl brokerConsumerStats_;
+
+  friend class PulsarFriend;
 };
 
 } /* namespace pulsar */

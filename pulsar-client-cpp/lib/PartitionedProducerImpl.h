@@ -16,102 +16,98 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include "ProducerImpl.h"
-#include "ClientImpl.h"
-#include "DestinationName.h"
-#include <vector>
+#include <pulsar/MessageRoutingPolicy.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-#include <pulsar/MessageRoutingPolicy.h>
+#include <vector>
+#include "ClientImpl.h"
+#include "DestinationName.h"
+#include "ProducerImpl.h"
 
 namespace pulsar {
 
-  class PartitionedProducerImpl: public ProducerImplBase, public boost::enable_shared_from_this<PartitionedProducerImpl> {
-
+class PartitionedProducerImpl
+    : public ProducerImplBase,
+      public boost::enable_shared_from_this<PartitionedProducerImpl> {
  public:
-    enum PartitionedProducerState {
-      Pending,
-      Ready,
-      Closing,
-      Closed,
-      Failed
-    };
-    const static std::string PARTITION_NAME_SUFFIX;
+  enum PartitionedProducerState { Pending, Ready, Closing, Closed, Failed };
+  const static std::string PARTITION_NAME_SUFFIX;
 
-    typedef boost::unique_lock<boost::mutex> Lock;
+  typedef boost::unique_lock<boost::mutex> Lock;
 
-    PartitionedProducerImpl(ClientImplPtr ptr,
-                            const DestinationNamePtr destinationName,
-                            const unsigned int numPartitions,
-                            const ProducerConfiguration& config);
-    virtual ~PartitionedProducerImpl();
+  PartitionedProducerImpl(ClientImplPtr ptr, const DestinationNamePtr destinationName,
+                          const unsigned int numPartitions,
+                          const ProducerConfiguration& config);
+  virtual ~PartitionedProducerImpl();
 
-    virtual void sendAsync(const Message& msg, SendCallback callback);
+  virtual void sendAsync(const Message& msg, SendCallback callback);
 
-    /*
-     * closes all active producers, it can be called explicitly from client as well as createProducer
-     * when it fails to create one of the producers and we want to fail createProducer
-     */
-    virtual void closeAsync(CloseCallback closeCallback);
+  /*
+   * closes all active producers, it can be called explicitly from client as well as
+   * createProducer
+   * when it fails to create one of the producers and we want to fail createProducer
+   */
+  virtual void closeAsync(CloseCallback closeCallback);
 
-    virtual const std::string& getProducerName() const;
+  virtual const std::string& getProducerName() const;
 
-    virtual int64_t getLastSequenceId() const;
+  virtual int64_t getLastSequenceId() const;
 
-    virtual void start();
+  virtual void start();
 
-    virtual void shutdown();
+  virtual void shutdown();
 
-    virtual bool isClosed();
+  virtual bool isClosed();
 
-    virtual const std::string& getTopic() const;
+  virtual const std::string& getTopic() const;
 
-    virtual Future<Result, ProducerImplBaseWeakPtr> getProducerCreatedFuture();
+  virtual Future<Result, ProducerImplBaseWeakPtr> getProducerCreatedFuture();
 
-    void handleSinglePartitionProducerCreated(Result result,
-                                              ProducerImplBaseWeakPtr producerBaseWeakPtr,
-                                              const unsigned int partitionIndex);
+  void handleSinglePartitionProducerCreated(Result result,
+                                            ProducerImplBaseWeakPtr producerBaseWeakPtr,
+                                            const unsigned int partitionIndex);
 
-    void handleSinglePartitionProducerClose(Result result,
-                                            const unsigned int partitionIndex,
-                                            CloseCallback callback);
+  void handleSinglePartitionProducerClose(Result result,
+                                          const unsigned int partitionIndex,
+                                          CloseCallback callback);
 
-    void notifyResult(CloseCallback closeCallback);
+  void notifyResult(CloseCallback closeCallback);
 
-    void setState(PartitionedProducerState state);
+  void setState(PartitionedProducerState state);
 
-    friend class PulsarFriend;
+  friend class PulsarFriend;
 
  private:
-    const ClientImplPtr client_;
+  const ClientImplPtr client_;
 
-    const DestinationNamePtr destinationName_;
-    const std::string topic_;
+  const DestinationNamePtr destinationName_;
+  const std::string topic_;
 
-    const unsigned int numPartitions_;
+  const unsigned int numPartitions_;
 
-    unsigned int numProducersCreated_;
+  unsigned int numProducersCreated_;
 
-    /*
-     * set when one or more Single Partition Creation fails, close will cleanup and fail the create callbackxo
-     */
-    bool cleanup_;
+  /*
+   * set when one or more Single Partition Creation fails, close will cleanup and fail the
+   * create callbackxo
+   */
+  bool cleanup_;
 
-    const ProducerConfiguration conf_;
+  const ProducerConfiguration conf_;
 
-    typedef std::vector<ProducerImplPtr> ProducerList;
+  typedef std::vector<ProducerImplPtr> ProducerList;
 
-    ProducerList producers_;
+  ProducerList producers_;
 
-    MessageRoutingPolicyPtr routerPolicy_;
+  MessageRoutingPolicyPtr routerPolicy_;
 
-    // mutex_ is used to share state_, and numProducersCreated_
-    boost::mutex mutex_;
+  // mutex_ is used to share state_, and numProducersCreated_
+  boost::mutex mutex_;
 
-    PartitionedProducerState state_;
+  PartitionedProducerState state_;
 
-    // only set this promise to value, when producers on all partitions are created.
-    Promise<Result, ProducerImplBaseWeakPtr> partitionedProducerCreatedPromise_;
-  };
+  // only set this promise to value, when producers on all partitions are created.
+  Promise<Result, ProducerImplBaseWeakPtr> partitionedProducerCreatedPromise_;
+};
 
-} //ends namespace Pulsar
+}  // ends namespace Pulsar

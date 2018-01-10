@@ -23,8 +23,8 @@
 
 #include <pulsar/Producer.h>
 
-#include "SharedBuffer.h"
 #include "PulsarApi.pb.h"
+#include "SharedBuffer.h"
 
 #include <map>
 
@@ -38,54 +38,55 @@ class CompressionCodecZLib;
 
 class CompressionCodecProvider {
  public:
-    static CompressionType convertType(proto::CompressionType type);
-    static proto::CompressionType convertType(CompressionType type);
+  static CompressionType convertType(proto::CompressionType type);
+  static proto::CompressionType convertType(CompressionType type);
 
-    static CompressionCodec& getCodec(CompressionType compressionType);
+  static CompressionCodec& getCodec(CompressionType compressionType);
+
  private:
-    static CompressionCodecNone compressionCodecNone_;
-    static CompressionCodecLZ4 compressionCodecLZ4_;
-    static CompressionCodecZLib compressionCodecZLib_;
+  static CompressionCodecNone compressionCodecNone_;
+  static CompressionCodecLZ4 compressionCodecLZ4_;
+  static CompressionCodecZLib compressionCodecZLib_;
 };
 
 class CompressionCodec {
  public:
-    virtual ~CompressionCodec() {
-    }
+  virtual ~CompressionCodec() {}
 
-    /**
-     * Compress a buffer
-     *
-     * @param raw
-     *            a buffer with the uncompressed content. The reader/writer indexes will not be modified
-     * @return a buffer with the compressed content.
-     */
-    virtual SharedBuffer encode(const SharedBuffer& raw) = 0;
+  /**
+   * Compress a buffer
+   *
+   * @param raw
+   *            a buffer with the uncompressed content. The reader/writer indexes will not
+   * be modified
+   * @return a buffer with the compressed content.
+   */
+  virtual SharedBuffer encode(const SharedBuffer& raw) = 0;
 
-    /**
-     * Decompress a buffer.
-     *
-     * The buffer needs to have been compressed with the matching Encoder.
-     *
-     * @param encoded
-     *            the compressed content
-     * @param uncompressedSize
-     *            the size of the original content
-     * @param decoded
-     *             were the result will be passed
-     * @return true if the buffer was decompressed, false otherwise
-     */
-    virtual bool decode(const SharedBuffer& encoded, uint32_t uncompressedSize,
-                        SharedBuffer& decoded) = 0;
+  /**
+   * Decompress a buffer.
+   *
+   * The buffer needs to have been compressed with the matching Encoder.
+   *
+   * @param encoded
+   *            the compressed content
+   * @param uncompressedSize
+   *            the size of the original content
+   * @param decoded
+   *             were the result will be passed
+   * @return true if the buffer was decompressed, false otherwise
+   */
+  virtual bool decode(const SharedBuffer& encoded, uint32_t uncompressedSize,
+                      SharedBuffer& decoded) = 0;
 };
 
 class CompressionCodecNone : public CompressionCodec {
  public:
-    SharedBuffer encode(const SharedBuffer& raw);
+  SharedBuffer encode(const SharedBuffer& raw);
 
-    bool decode(const SharedBuffer& encoded, uint32_t uncompressedSize, SharedBuffer& decoded);
+  bool decode(const SharedBuffer& encoded, uint32_t uncompressedSize,
+              SharedBuffer& decoded);
 };
-
 }
 
 #endif /* LIB_COMPRESSIONCODEC_H_ */

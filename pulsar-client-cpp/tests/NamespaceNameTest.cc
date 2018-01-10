@@ -21,11 +21,13 @@
 #include <gtest/gtest.h>
 
 TEST(NamespaceNameTest, testNamespaceName) {
-    boost::shared_ptr<NamespaceName> nn1 = NamespaceName::get("property", "cluster", "namespace");
-    ASSERT_EQ("property", nn1->getProperty());
-    ASSERT_EQ("cluster", nn1->getCluster());
-    ASSERT_EQ("namespace", nn1->getLocalName());
+  boost::shared_ptr<NamespaceName> nn1 =
+      NamespaceName::get("property", "cluster", "namespace");
+  ASSERT_EQ("property", nn1->getProperty());
+  ASSERT_EQ("cluster", nn1->getCluster());
+  ASSERT_EQ("namespace", nn1->getLocalName());
 
-    boost::shared_ptr<NamespaceName> nn2 = NamespaceName::get("property", "cluster", "namespace");
-    ASSERT_TRUE(*nn1 == *nn2);
+  boost::shared_ptr<NamespaceName> nn2 =
+      NamespaceName::get("property", "cluster", "namespace");
+  ASSERT_TRUE(*nn1 == *nn2);
 }

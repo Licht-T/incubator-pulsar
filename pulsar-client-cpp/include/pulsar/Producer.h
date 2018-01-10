@@ -20,8 +20,8 @@
 #define PRODUCER_HPP_
 
 #include <pulsar/ProducerConfiguration.h>
-#include <boost/shared_ptr.hpp>
 #include <stdint.h>
+#include <boost/shared_ptr.hpp>
 
 #pragma GCC visibility push(default)
 
@@ -31,99 +31,102 @@ class PulsarWrapper;
 class PulsarFriend;
 class Producer {
  public:
-    /**
-     * Construct an uninitialized Producer.
-     */
-    Producer();
+  /**
+   * Construct an uninitialized Producer.
+   */
+  Producer();
 
-    /**
-     * @return the topic to which producer is publishing to
-     */
-    const std::string& getTopic() const;
+  /**
+   * @return the topic to which producer is publishing to
+   */
+  const std::string& getTopic() const;
 
-    /**
-     * @return the producer name which could have been assigned by the system or specified by the client
-     */
-    const std::string& getProducerName() const;
+  /**
+   * @return the producer name which could have been assigned by the system or specified
+   * by the client
+   */
+  const std::string& getProducerName() const;
 
-    /**
-     * Publish a message on the topic associated with this Producer.
-     *
-     * This method will block until the message will be accepted and persisted
-     * by the broker. In case of errors, the client library will try to
-     * automatically recover and use a different broker.
-     *
-     * If it wasn't possible to successfully publish the message within the sendTimeout,
-     * an error will be returned.
-     *
-     * This method is equivalent to asyncSend() and wait until the callback is triggered.
-     *
-     * @param msg message to publish
-     * @return ResultOk if the message was published successfully
-     * @return ResultWriteError if it wasn't possible to publish the message
-     */
-    Result send(const Message& msg);
+  /**
+   * Publish a message on the topic associated with this Producer.
+   *
+   * This method will block until the message will be accepted and persisted
+   * by the broker. In case of errors, the client library will try to
+   * automatically recover and use a different broker.
+   *
+   * If it wasn't possible to successfully publish the message within the sendTimeout,
+   * an error will be returned.
+   *
+   * This method is equivalent to asyncSend() and wait until the callback is triggered.
+   *
+   * @param msg message to publish
+   * @return ResultOk if the message was published successfully
+   * @return ResultWriteError if it wasn't possible to publish the message
+   */
+  Result send(const Message& msg);
 
-    /**
-     * Asynchronously publish a message on the topic associated with this Producer.
-     *
-     * This method will initiate the publish operation and return immediately. The
-     * provided callback will be triggered when the message has been be accepted and persisted
-     * by the broker. In case of errors, the client library will try to
-     * automatically recover and use a different broker.
-     *
-     * If it wasn't possible to successfully publish the message within the sendTimeout, the
-     * callback will be triggered with a Result::WriteError code.
-     *
-     * @param msg message to publish
-     * @param callback the callback to get notification of the completion
-     */
-    void sendAsync(const Message& msg, SendCallback callback);
+  /**
+   * Asynchronously publish a message on the topic associated with this Producer.
+   *
+   * This method will initiate the publish operation and return immediately. The
+   * provided callback will be triggered when the message has been be accepted and
+   * persisted
+   * by the broker. In case of errors, the client library will try to
+   * automatically recover and use a different broker.
+   *
+   * If it wasn't possible to successfully publish the message within the sendTimeout, the
+   * callback will be triggered with a Result::WriteError code.
+   *
+   * @param msg message to publish
+   * @param callback the callback to get notification of the completion
+   */
+  void sendAsync(const Message& msg, SendCallback callback);
 
-    /**
-     * Get the last sequence id that was published by this producer.
-     *
-     * This represent either the automatically assigned or custom sequence id (set on the MessageBuilder) that
-     * was published and acknowledged by the broker.
-     *
-     * After recreating a producer with the same producer name, this will return the last message that was published in
-     * the previous producer session, or -1 if there no message was ever published.
-     *
-     * @return the last sequence id published by this producer
-     */
-    int64_t getLastSequenceId() const;
+  /**
+   * Get the last sequence id that was published by this producer.
+   *
+   * This represent either the automatically assigned or custom sequence id (set on the
+   * MessageBuilder) that
+   * was published and acknowledged by the broker.
+   *
+   * After recreating a producer with the same producer name, this will return the last
+   * message that was published in
+   * the previous producer session, or -1 if there no message was ever published.
+   *
+   * @return the last sequence id published by this producer
+   */
+  int64_t getLastSequenceId() const;
 
-    /**
-     * Close the producer and release resources allocated.
-     *
-     * No more writes will be accepted from this producer. Waits until
-     * all pending write requests are persisted. In case of errors,
-     * pending writes will not be retried.
-     *
-     * @return an error code to indicate the success or failure
-     */
-    Result close();
+  /**
+   * Close the producer and release resources allocated.
+   *
+   * No more writes will be accepted from this producer. Waits until
+   * all pending write requests are persisted. In case of errors,
+   * pending writes will not be retried.
+   *
+   * @return an error code to indicate the success or failure
+   */
+  Result close();
 
-    /**
-     * Close the producer and release resources allocated.
-     *
-     * No more writes will be accepted from this producer. The provided callback will be
-     * triggered when all pending write requests are persisted. In case of errors,
-     * pending writes will not be retried.
-     */
-    void closeAsync(CloseCallback callback);
+  /**
+   * Close the producer and release resources allocated.
+   *
+   * No more writes will be accepted from this producer. The provided callback will be
+   * triggered when all pending write requests are persisted. In case of errors,
+   * pending writes will not be retried.
+   */
+  void closeAsync(CloseCallback callback);
 
  private:
-    typedef boost::shared_ptr<ProducerImplBase> ProducerImplBasePtr;
-    explicit Producer(ProducerImplBasePtr);
+  typedef boost::shared_ptr<ProducerImplBase> ProducerImplBasePtr;
+  explicit Producer(ProducerImplBasePtr);
 
-    friend class ClientImpl;
-    friend class PulsarFriend;
-    friend class PulsarWrapper;
+  friend class ClientImpl;
+  friend class PulsarFriend;
+  friend class PulsarWrapper;
 
-    ProducerImplBasePtr impl_;
+  ProducerImplBasePtr impl_;
 };
-
 }
 
 #pragma GCC visibility pop

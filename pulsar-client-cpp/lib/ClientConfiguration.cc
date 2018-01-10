@@ -21,113 +21,110 @@
 namespace pulsar {
 
 ClientConfiguration::ClientConfiguration()
-        : impl_(boost::make_shared<ClientConfigurationImpl>()) {
-}
+    : impl_(boost::make_shared<ClientConfigurationImpl>()) {}
 
-ClientConfiguration::~ClientConfiguration() {
-}
+ClientConfiguration::~ClientConfiguration() {}
 
-ClientConfiguration::ClientConfiguration(const ClientConfiguration& x)
-    : impl_(x.impl_) {
-}
+ClientConfiguration::ClientConfiguration(const ClientConfiguration& x) : impl_(x.impl_) {}
 
 ClientConfiguration& ClientConfiguration::operator=(const ClientConfiguration& x) {
-    impl_ = x.impl_;
-    return *this;
+  impl_ = x.impl_;
+  return *this;
 }
 
-ClientConfiguration& ClientConfiguration::setAuth(const AuthenticationPtr& authentication) {
-    impl_->authenticationPtr = authentication;
-    return *this;
+ClientConfiguration& ClientConfiguration::setAuth(
+    const AuthenticationPtr& authentication) {
+  impl_->authenticationPtr = authentication;
+  return *this;
 }
 
 const Authentication& ClientConfiguration::getAuth() const {
-    return *impl_->authenticationPtr;
+  return *impl_->authenticationPtr;
 }
 
 const AuthenticationPtr& ClientConfiguration::getAuthPtr() const {
-    return impl_->authenticationPtr;
+  return impl_->authenticationPtr;
 }
 
 ClientConfiguration& ClientConfiguration::setOperationTimeoutSeconds(int timeout) {
-    impl_->operationTimeoutSeconds = timeout;
-    return *this;
+  impl_->operationTimeoutSeconds = timeout;
+  return *this;
 }
 
 int ClientConfiguration::getOperationTimeoutSeconds() const {
-    return impl_->operationTimeoutSeconds;
+  return impl_->operationTimeoutSeconds;
 }
 
 ClientConfiguration& ClientConfiguration::setIOThreads(int threads) {
-    impl_->ioThreads = threads;
-    return *this;
+  impl_->ioThreads = threads;
+  return *this;
 }
 
-int ClientConfiguration::getIOThreads() const {
-    return impl_->ioThreads;
-}
+int ClientConfiguration::getIOThreads() const { return impl_->ioThreads; }
 
 ClientConfiguration& ClientConfiguration::setMessageListenerThreads(int threads) {
-    impl_->messageListenerThreads = threads;
-    return *this;
+  impl_->messageListenerThreads = threads;
+  return *this;
 }
 
 int ClientConfiguration::getMessageListenerThreads() const {
-    return impl_->messageListenerThreads;
+  return impl_->messageListenerThreads;
 }
 
 ClientConfiguration& ClientConfiguration::setUseTls(bool useTls) {
-    impl_->useTls = useTls;
-    return *this;
+  impl_->useTls = useTls;
+  return *this;
 }
 
-bool ClientConfiguration::isUseTls() const {
-    return impl_->useTls;
-}
+bool ClientConfiguration::isUseTls() const { return impl_->useTls; }
 
-ClientConfiguration& ClientConfiguration::setTlsTrustCertsFilePath(const std::string &filePath) {
-    impl_->tlsTrustCertsFilePath = filePath;
-    return *this;
+ClientConfiguration& ClientConfiguration::setTlsTrustCertsFilePath(
+    const std::string& filePath) {
+  impl_->tlsTrustCertsFilePath = filePath;
+  return *this;
 }
 
 std::string ClientConfiguration::getTlsTrustCertsFilePath() const {
-    return impl_->tlsTrustCertsFilePath;
+  return impl_->tlsTrustCertsFilePath;
 }
 
-ClientConfiguration& ClientConfiguration::setTlsAllowInsecureConnection(bool allowInsecure) {
-    impl_->tlsAllowInsecureConnection = allowInsecure;
-    return *this;
+ClientConfiguration& ClientConfiguration::setTlsAllowInsecureConnection(
+    bool allowInsecure) {
+  impl_->tlsAllowInsecureConnection = allowInsecure;
+  return *this;
 }
 
 bool ClientConfiguration::isTlsAllowInsecureConnection() const {
-    return impl_->tlsAllowInsecureConnection;
+  return impl_->tlsAllowInsecureConnection;
 }
 
-ClientConfiguration& ClientConfiguration::setConcurrentLookupRequest(int concurrentLookupRequest) {
-    impl_->concurrentLookupRequest = concurrentLookupRequest;
-    return *this;
+ClientConfiguration& ClientConfiguration::setConcurrentLookupRequest(
+    int concurrentLookupRequest) {
+  impl_->concurrentLookupRequest = concurrentLookupRequest;
+  return *this;
 }
 
 int ClientConfiguration::getConcurrentLookupRequest() const {
-    return impl_->concurrentLookupRequest;
+  return impl_->concurrentLookupRequest;
 }
 
-ClientConfiguration& ClientConfiguration::setLogConfFilePath(const std::string& logConfFilePath) {
-    impl_->logConfFilePath = logConfFilePath;
-    return *this;
+ClientConfiguration& ClientConfiguration::setLogConfFilePath(
+    const std::string& logConfFilePath) {
+  impl_->logConfFilePath = logConfFilePath;
+  return *this;
 }
 
 const std::string& ClientConfiguration::getLogConfFilePath() const {
-    return impl_->logConfFilePath;
+  return impl_->logConfFilePath;
 }
 
-ClientConfiguration& ClientConfiguration::setStatsIntervalInSeconds(const unsigned int& statsIntervalInSeconds) {
-    impl_->statsIntervalInSeconds = statsIntervalInSeconds;
-    return *this;
+ClientConfiguration& ClientConfiguration::setStatsIntervalInSeconds(
+    const unsigned int& statsIntervalInSeconds) {
+  impl_->statsIntervalInSeconds = statsIntervalInSeconds;
+  return *this;
 }
 
 const unsigned int& ClientConfiguration::getStatsIntervalInSeconds() const {
-    return impl_->statsIntervalInSeconds;
+  return impl_->statsIntervalInSeconds;
 }
-
 }

@@ -28,250 +28,258 @@ using namespace pulsar;
 static std::string serviceUrl = "pulsar://localhost:8885";
 
 TEST(ReaderTest, testSimpleReader) {
-    Client client(serviceUrl);
+  Client client(serviceUrl);
 
-    std::string topicName = "persistent://property/cluster/namespace/test-simple-reader";
+  std::string topicName = "persistent://property/cluster/namespace/test-simple-reader";
 
-    ReaderConfiguration readerConf;
-    Reader reader;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, MessageId::earliest(), readerConf, reader));
+  ReaderConfiguration readerConf;
+  Reader reader;
+  ASSERT_EQ(ResultOk,
+            client.createReader(topicName, MessageId::earliest(), readerConf, reader));
 
-    Producer producer;
-    ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
+  Producer producer;
+  ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
 
-    for (int i = 0; i < 10; i++) {
-        std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
-        Message msg = MessageBuilder().setContent(content).build();
-        ASSERT_EQ(ResultOk, producer.send(msg));
-    }
+  for (int i = 0; i < 10; i++) {
+    std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
+    Message msg = MessageBuilder().setContent(content).build();
+    ASSERT_EQ(ResultOk, producer.send(msg));
+  }
 
-    for (int i = 0; i < 10; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader.readNext(msg));
+  for (int i = 0; i < 10; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader.readNext(msg));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
-    }
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
+  }
 
-    client.close();
+  client.close();
 }
 
 TEST(ReaderTest, testReaderAfterMessagesWerePublished) {
-    Client client(serviceUrl);
+  Client client(serviceUrl);
 
-    std::string topicName =
-            "persistent://property/cluster/namespace/testReaderAfterMessagesWerePublished";
+  std::string topicName =
+      "persistent://property/cluster/namespace/testReaderAfterMessagesWerePublished";
 
-    Producer producer;
-    ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
+  Producer producer;
+  ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
 
-    for (int i = 0; i < 10; i++) {
-        std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
-        Message msg = MessageBuilder().setContent(content).build();
-        ASSERT_EQ(ResultOk, producer.send(msg));
-    }
+  for (int i = 0; i < 10; i++) {
+    std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
+    Message msg = MessageBuilder().setContent(content).build();
+    ASSERT_EQ(ResultOk, producer.send(msg));
+  }
 
-    ReaderConfiguration readerConf;
-    Reader reader;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, MessageId::earliest(), readerConf, reader));
+  ReaderConfiguration readerConf;
+  Reader reader;
+  ASSERT_EQ(ResultOk,
+            client.createReader(topicName, MessageId::earliest(), readerConf, reader));
 
-    for (int i = 0; i < 10; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader.readNext(msg));
+  for (int i = 0; i < 10; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader.readNext(msg));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
-    }
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
+  }
 
-    client.close();
+  client.close();
 }
 
 TEST(ReaderTest, testMultipleReaders) {
-    Client client(serviceUrl);
+  Client client(serviceUrl);
 
-    std::string topicName = "persistent://property/cluster/namespace/testMultipleReaders";
+  std::string topicName = "persistent://property/cluster/namespace/testMultipleReaders";
 
-    Producer producer;
-    ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
+  Producer producer;
+  ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
 
-    for (int i = 0; i < 10; i++) {
-        std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
-        Message msg = MessageBuilder().setContent(content).build();
-        ASSERT_EQ(ResultOk, producer.send(msg));
-    }
+  for (int i = 0; i < 10; i++) {
+    std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
+    Message msg = MessageBuilder().setContent(content).build();
+    ASSERT_EQ(ResultOk, producer.send(msg));
+  }
 
-    ReaderConfiguration readerConf;
-    Reader reader1;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, MessageId::earliest(), readerConf, reader1));
+  ReaderConfiguration readerConf;
+  Reader reader1;
+  ASSERT_EQ(ResultOk,
+            client.createReader(topicName, MessageId::earliest(), readerConf, reader1));
 
-    Reader reader2;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, MessageId::earliest(), readerConf, reader2));
+  Reader reader2;
+  ASSERT_EQ(ResultOk,
+            client.createReader(topicName, MessageId::earliest(), readerConf, reader2));
 
-    for (int i = 0; i < 10; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader1.readNext(msg));
+  for (int i = 0; i < 10; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader1.readNext(msg));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
-    }
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
+  }
 
-    for (int i = 0; i < 10; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader2.readNext(msg));
+  for (int i = 0; i < 10; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader2.readNext(msg));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
-    }
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
+  }
 
-    client.close();
+  client.close();
 }
 
 TEST(ReaderTest, testReaderOnLastMessage) {
-    Client client(serviceUrl);
+  Client client(serviceUrl);
 
-    std::string topicName = "persistent://property/cluster/namespace/testReaderOnLastMessage";
+  std::string topicName =
+      "persistent://property/cluster/namespace/testReaderOnLastMessage";
 
-    Producer producer;
-    ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
+  Producer producer;
+  ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
 
-    for (int i = 0; i < 10; i++) {
-        std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
-        Message msg = MessageBuilder().setContent(content).build();
-        ASSERT_EQ(ResultOk, producer.send(msg));
-    }
+  for (int i = 0; i < 10; i++) {
+    std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
+    Message msg = MessageBuilder().setContent(content).build();
+    ASSERT_EQ(ResultOk, producer.send(msg));
+  }
 
-    ReaderConfiguration readerConf;
-    Reader reader;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, MessageId::latest(), readerConf, reader));
+  ReaderConfiguration readerConf;
+  Reader reader;
+  ASSERT_EQ(ResultOk,
+            client.createReader(topicName, MessageId::latest(), readerConf, reader));
 
-    for (int i = 10; i < 20; i++) {
-        std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
-        Message msg = MessageBuilder().setContent(content).build();
-        ASSERT_EQ(ResultOk, producer.send(msg));
-    }
+  for (int i = 10; i < 20; i++) {
+    std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
+    Message msg = MessageBuilder().setContent(content).build();
+    ASSERT_EQ(ResultOk, producer.send(msg));
+  }
 
-    for (int i = 10; i < 20; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader.readNext(msg));
+  for (int i = 10; i < 20; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader.readNext(msg));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
-    }
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
+  }
 
-    client.close();
+  client.close();
 }
 
 TEST(ReaderTest, testReaderOnSpecificMessage) {
-    Client client(serviceUrl);
+  Client client(serviceUrl);
 
-    std::string topicName = "persistent://property/cluster/namespace/testReaderOnSpecificMessage";
+  std::string topicName =
+      "persistent://property/cluster/namespace/testReaderOnSpecificMessage";
 
-    Producer producer;
-    ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
+  Producer producer;
+  ASSERT_EQ(ResultOk, client.createProducer(topicName, producer));
 
-    for (int i = 0; i < 10; i++) {
-        std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
-        Message msg = MessageBuilder().setContent(content).build();
-        ASSERT_EQ(ResultOk, producer.send(msg));
-    }
+  for (int i = 0; i < 10; i++) {
+    std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
+    Message msg = MessageBuilder().setContent(content).build();
+    ASSERT_EQ(ResultOk, producer.send(msg));
+  }
 
-    ReaderConfiguration readerConf;
-    Reader reader;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, MessageId::earliest(), readerConf, reader));
+  ReaderConfiguration readerConf;
+  Reader reader;
+  ASSERT_EQ(ResultOk,
+            client.createReader(topicName, MessageId::earliest(), readerConf, reader));
 
-    MessageId lastMessageId;
+  MessageId lastMessageId;
 
-    for (int i = 0; i < 5; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader.readNext(msg));
+  for (int i = 0; i < 5; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader.readNext(msg));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
 
-        lastMessageId = msg.getMessageId();
-    }
+    lastMessageId = msg.getMessageId();
+  }
 
-    // Create another reader starting on msgid4
-    ASSERT_EQ(ResultOk, client.createReader(topicName, lastMessageId, readerConf, reader));
+  // Create another reader starting on msgid4
+  ASSERT_EQ(ResultOk, client.createReader(topicName, lastMessageId, readerConf, reader));
 
-    for (int i = 5; i < 10; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader.readNext(msg));
+  for (int i = 5; i < 10; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader.readNext(msg));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
-    }
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
+  }
 
-    client.close();
+  client.close();
 }
-
 
 /**
  * Test that we can position on a particular message even within a batch
  */
 TEST(ReaderTest, testReaderOnSpecificMessageWithBatches) {
-    Client client(serviceUrl);
+  Client client(serviceUrl);
 
-    std::string topicName = "persistent://property/cluster/namespace/testReaderOnSpecificMessageWithBatches";
+  std::string topicName =
+      "persistent://property/cluster/namespace/testReaderOnSpecificMessageWithBatches";
 
-    Producer producer;
-    // Enable batching
-    ProducerConfiguration producerConf;
-    producerConf.setBatchingEnabled(true);
-    producerConf.setBatchingMaxPublishDelayMs(1000);
-    ASSERT_EQ(ResultOk, client.createProducer(topicName, producerConf, producer));
+  Producer producer;
+  // Enable batching
+  ProducerConfiguration producerConf;
+  producerConf.setBatchingEnabled(true);
+  producerConf.setBatchingMaxPublishDelayMs(1000);
+  ASSERT_EQ(ResultOk, client.createProducer(topicName, producerConf, producer));
 
-    for (int i = 0; i < 10; i++) {
-        std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
-        Message msg = MessageBuilder().setContent(content).build();
-        producer.sendAsync(msg, NULL);
-    }
-
-    // Send one sync message, to wait for everything before to be persisted as well
-    std::string content = "my-message-10";
+  for (int i = 0; i < 10; i++) {
+    std::string content = "my-message-" + boost::lexical_cast<std::string>(i);
     Message msg = MessageBuilder().setContent(content).build();
-    ASSERT_EQ(ResultOk, producer.send(msg));
+    producer.sendAsync(msg, NULL);
+  }
 
-    ReaderConfiguration readerConf;
-    Reader reader;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, MessageId::earliest(), readerConf, reader));
+  // Send one sync message, to wait for everything before to be persisted as well
+  std::string content = "my-message-10";
+  Message msg = MessageBuilder().setContent(content).build();
+  ASSERT_EQ(ResultOk, producer.send(msg));
 
-    std::string lastMessageId;
+  ReaderConfiguration readerConf;
+  Reader reader;
+  ASSERT_EQ(ResultOk,
+            client.createReader(topicName, MessageId::earliest(), readerConf, reader));
 
-    for (int i = 0; i < 5; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader.readNext(msg));
+  std::string lastMessageId;
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
+  for (int i = 0; i < 5; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader.readNext(msg));
 
-        msg.getMessageId().serialize(lastMessageId);
-    }
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
 
-    // Create another reader starting on msgid4
-    auto msgId4 = MessageId::deserialize(lastMessageId);
-    Reader reader2;
-    ASSERT_EQ(ResultOk, client.createReader(topicName, *msgId4, readerConf, reader2));
+    msg.getMessageId().serialize(lastMessageId);
+  }
 
-    for (int i = 5; i < 11; i++) {
-        Message msg;
-        ASSERT_EQ(ResultOk, reader2.readNext(msg));
+  // Create another reader starting on msgid4
+  auto msgId4 = MessageId::deserialize(lastMessageId);
+  Reader reader2;
+  ASSERT_EQ(ResultOk, client.createReader(topicName, *msgId4, readerConf, reader2));
 
-        std::string content = msg.getDataAsString();
-        std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
-        ASSERT_EQ(expected, content);
-    }
+  for (int i = 5; i < 11; i++) {
+    Message msg;
+    ASSERT_EQ(ResultOk, reader2.readNext(msg));
 
-    reader.close();
-    reader2.close();
-    client.close();
+    std::string content = msg.getDataAsString();
+    std::string expected = "my-message-" + boost::lexical_cast<std::string>(i);
+    ASSERT_EQ(expected, content);
+  }
+
+  reader.close();
+  reader2.close();
+  client.close();
 }
-

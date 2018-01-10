@@ -16,55 +16,56 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include <pulsar/BatchMessageId.h>
-#include <lib/ProducerImpl.h>
 #include <lib/ConsumerImpl.h>
+#include <lib/ProducerImpl.h>
+#include <pulsar/BatchMessageId.h>
 #include <string>
 
 using std::string;
 
-namespace pulsar{
+namespace pulsar {
 class PulsarFriend {
-    public:
-    static int getBatchIndex(const BatchMessageId& mId) {
-        return mId.batchIndex_;
-    }
+ public:
+  static int getBatchIndex(const BatchMessageId& mId) { return mId.batchIndex_; }
 
-    static ProducerStatsImplPtr getProducerStatsPtr(Producer producer) {
-        ProducerImpl* producerImpl = static_cast<ProducerImpl*>(producer.impl_.get());
-        return boost::static_pointer_cast<ProducerStatsImpl>(producerImpl->producerStatsBasePtr_);
-    }
+  static ProducerStatsImplPtr getProducerStatsPtr(Producer producer) {
+    ProducerImpl* producerImpl = static_cast<ProducerImpl*>(producer.impl_.get());
+    return boost::static_pointer_cast<ProducerStatsImpl>(
+        producerImpl->producerStatsBasePtr_);
+  }
 
-    template<typename T>
-    static unsigned long sum(std::map<T, unsigned long> m) {
-        unsigned long sum = 0;
-        for (typename std::map<T, unsigned long>::iterator iter = m.begin(); iter != m.end(); iter++) {
-            sum += iter->second;
-        }
-        return sum;
+  template <typename T>
+  static unsigned long sum(std::map<T, unsigned long> m) {
+    unsigned long sum = 0;
+    for (typename std::map<T, unsigned long>::iterator iter = m.begin(); iter != m.end();
+         iter++) {
+      sum += iter->second;
     }
+    return sum;
+  }
 
-    static ConsumerStatsImplPtr getConsumerStatsPtr(Consumer consumer) {
-        ConsumerImpl* consumerImpl = static_cast<ConsumerImpl*>(consumer.impl_.get());
-        return boost::static_pointer_cast<ConsumerStatsImpl>(consumerImpl->consumerStatsBasePtr_);
-    }
+  static ConsumerStatsImplPtr getConsumerStatsPtr(Consumer consumer) {
+    ConsumerImpl* consumerImpl = static_cast<ConsumerImpl*>(consumer.impl_.get());
+    return boost::static_pointer_cast<ConsumerStatsImpl>(
+        consumerImpl->consumerStatsBasePtr_);
+  }
 
-    static ProducerImpl& getProducerImpl(Producer producer) {
-        ProducerImpl* producerImpl = static_cast<ProducerImpl*>(producer.impl_.get());
-        return *producerImpl;
-    }
+  static ProducerImpl& getProducerImpl(Producer producer) {
+    ProducerImpl* producerImpl = static_cast<ProducerImpl*>(producer.impl_.get());
+    return *producerImpl;
+  }
 
-    static ConsumerImpl& getConsumerImpl(Consumer consumer) {
-        ConsumerImpl* consumerImpl = static_cast<ConsumerImpl*>(consumer.impl_.get());
-        return *consumerImpl;
-    }
+  static ConsumerImpl& getConsumerImpl(Consumer consumer) {
+    ConsumerImpl* consumerImpl = static_cast<ConsumerImpl*>(consumer.impl_.get());
+    return *consumerImpl;
+  }
 
-    static ClientConnectionWeakPtr getClientConnection(HandlerBase&  handler) {
-        return handler.connection_;
-    }
+  static ClientConnectionWeakPtr getClientConnection(HandlerBase& handler) {
+    return handler.connection_;
+  }
 
-    static boost::posix_time::ptime& getFirstBackoffTime(Backoff& backoff) {
-        return backoff.firstBackoffTime_;
-    }
+  static boost::posix_time::ptime& getFirstBackoffTime(Backoff& backoff) {
+    return backoff.firstBackoffTime_;
+  }
 };
 }

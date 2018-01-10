@@ -30,46 +30,43 @@ CompressionCodecLZ4 CompressionCodecProvider::compressionCodecLZ4_;
 CompressionCodecZLib CompressionCodecProvider::compressionCodecZLib_;
 
 CompressionCodec& CompressionCodecProvider::getCodec(CompressionType compressionType) {
-    switch (compressionType) {
-        case CompressionLZ4:
-            return compressionCodecLZ4_;
-        case CompressionZLib:
-            return compressionCodecZLib_;
-        default:
-            return compressionCodecNone_;
-    }
+  switch (compressionType) {
+    case CompressionLZ4:
+      return compressionCodecLZ4_;
+    case CompressionZLib:
+      return compressionCodecZLib_;
+    default:
+      return compressionCodecNone_;
+  }
 }
 
 CompressionType CompressionCodecProvider::convertType(proto::CompressionType type) {
-    switch (type) {
-        case proto::NONE:
-            return CompressionNone;
-        case proto::LZ4:
-            return CompressionLZ4;
-        case proto::ZLIB:
-            return CompressionZLib;
-    }
+  switch (type) {
+    case proto::NONE:
+      return CompressionNone;
+    case proto::LZ4:
+      return CompressionLZ4;
+    case proto::ZLIB:
+      return CompressionZLib;
+  }
 }
 
 proto::CompressionType CompressionCodecProvider::convertType(CompressionType type) {
-    switch (type) {
-        case CompressionNone:
-            return proto::NONE;
-        case CompressionLZ4:
-            return proto::LZ4;
-        case CompressionZLib:
-            return proto::ZLIB;
-    }
+  switch (type) {
+    case CompressionNone:
+      return proto::NONE;
+    case CompressionLZ4:
+      return proto::LZ4;
+    case CompressionZLib:
+      return proto::ZLIB;
+  }
 }
 
-SharedBuffer CompressionCodecNone::encode(const SharedBuffer& raw) {
-    return raw;
-}
+SharedBuffer CompressionCodecNone::encode(const SharedBuffer& raw) { return raw; }
 
 bool CompressionCodecNone::decode(const SharedBuffer& encoded, uint32_t uncompressedSize,
                                   SharedBuffer& decoded) {
-    decoded = encoded;
-    return true;
+  decoded = encoded;
+  return true;
 }
-
 }

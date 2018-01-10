@@ -19,29 +19,31 @@
 #ifndef PULSAR_CPP_LOOKUPSERVICE_H
 #define PULSAR_CPP_LOOKUPSERVICE_H
 
+#include <lib/DestinationName.h>
+#include <lib/Future.h>
+#include <lib/LogUtils.h>
 #include <lib/LookupDataResult.h>
 #include <pulsar/Result.h>
-#include <lib/Future.h>
-#include <lib/DestinationName.h>
-#include <lib/LogUtils.h>
 
 namespace pulsar {
 class LookupService {
-public:
-    /*
-     * @param    destinationName - topic name
-     *
-     * Looks up the owner broker for the given destination name
-     */
-    virtual Future<Result, LookupDataResultPtr> lookupAsync(const std::string& destinationName) = 0;
+ public:
+  /*
+   * @param    destinationName - topic name
+   *
+   * Looks up the owner broker for the given destination name
+   */
+  virtual Future<Result, LookupDataResultPtr> lookupAsync(
+      const std::string& destinationName) = 0;
 
-    /*
-     * @param    dn - pointer to destination (topic) name
-     *
-     * Gets Partition metadata
-     */
-    virtual Future<Result, LookupDataResultPtr> getPartitionMetadataAsync(const DestinationNamePtr& dn) = 0;
+  /*
+   * @param    dn - pointer to destination (topic) name
+   *
+   * Gets Partition metadata
+   */
+  virtual Future<Result, LookupDataResultPtr> getPartitionMetadataAsync(
+      const DestinationNamePtr& dn) = 0;
 };
 typedef boost::shared_ptr<LookupService> LookupServicePtr;
 }
-#endif //PULSAR_CPP_LOOKUPSERVICE_H
+#endif  // PULSAR_CPP_LOOKUPSERVICE_H

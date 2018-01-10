@@ -23,63 +23,59 @@
 
 class HandlerAllocator : private boost::noncopyable {
  public:
-    HandlerAllocator()
-            : inUse_(false) {
-    }
+  HandlerAllocator() : inUse_(false) {}
 
-    void* allocate(std::size_t size) {
-        if (!inUse_ && size < storage_.size) {
-            inUse_ = true;
-            return storage_.address();
-        } else {
-            return ::operator new(size);
-        }
+  void* allocate(std::size_t size) {
+    if (!inUse_ && size < storage_.size) {
+      inUse_ = true;
+      return storage_.address();
+    } else {
+      return ::operator new(size);
     }
+  }
 
-    void deallocate(void* pointer) {
-        if (pointer == storage_.address()) {
-            inUse_ = false;
-        } else {
-            ::operator delete(pointer);
-        }
+  void deallocate(void* pointer) {
+    if (pointer == storage_.address()) {
+      inUse_ = false;
+    } else {
+      ::operator delete(pointer);
     }
+  }
 
  private:
-    // Storage space used for handler-based custom memory allocation.
-    boost::aligned_storage<1024> storage_;
-    bool inUse_;
+  // Storage space used for handler-based custom memory allocation.
+  boost::aligned_storage<1024> storage_;
+  bool inUse_;
 };
 
-template<typename Handler>
+template <typename Handler>
 class AllocHandler {
  public:
-    AllocHandler(HandlerAllocator& a, Handler h)
-            : allocator_(a),
-              handler_(h) {
-    }
+  AllocHandler(HandlerAllocator& a, Handler h) : allocator_(a), handler_(h) {}
 
-    template<typename Arg1>
-    void operator()(Arg1 arg1) {
-        handler_(arg1);
-    }
+  template <typename Arg1>
+  void operator()(Arg1 arg1) {
+    handler_(arg1);
+  }
 
-    template<typename Arg1, typename Arg2>
-    void operator()(Arg1 arg1, Arg2 arg2) {
-        handler_(arg1, arg2);
-    }
+  template <typename Arg1, typename Arg2>
+  void operator()(Arg1 arg1, Arg2 arg2) {
+    handler_(arg1, arg2);
+  }
 
-    friend void* asio_handler_allocate(std::size_t size, AllocHandler<Handler>* thisHandler) {
-        return thisHandler->allocator_.allocate(size);
-    }
+  friend void* asio_handler_allocate(std::size_t size,
+                                     AllocHandler<Handler>* thisHandler) {
+    return thisHandler->allocator_.allocate(size);
+  }
 
-    friend void asio_handler_deallocate(void* ptr, std::size_t,
-                                        AllocHandler<Handler>* thisHandler) {
-        thisHandler->allocator_.deallocate(ptr);
-    }
+  friend void asio_handler_deallocate(void* ptr, std::size_t,
+                                      AllocHandler<Handler>* thisHandler) {
+    thisHandler->allocator_.deallocate(ptr);
+  }
 
  private:
-    HandlerAllocator& allocator_;
-    Handler handler_;
+  HandlerAllocator& allocator_;
+  Handler handler_;
 };
 
 #endif /* LIB_UTILALLOCATOR_H_ */

@@ -19,19 +19,19 @@
 #ifndef LIB_COMPRESSIONCODECZLIB_H_
 #define LIB_COMPRESSIONCODECZLIB_H_
 
-#include "CompressionCodec.h"
 #include <zlib.h>
 #include <boost/thread/mutex.hpp>
+#include "CompressionCodec.h"
 
 namespace pulsar {
 
 class CompressionCodecZLib : public CompressionCodec {
  public:
-    SharedBuffer encode(const SharedBuffer& raw);
+  SharedBuffer encode(const SharedBuffer& raw);
 
-    bool decode(const SharedBuffer& encoded, uint32_t uncompressedSize, SharedBuffer& decoded);
+  bool decode(const SharedBuffer& encoded, uint32_t uncompressedSize,
+              SharedBuffer& decoded);
 };
-
 }
 
 #endif /* LIB_COMPRESSIONCODECZLIB_H_ */

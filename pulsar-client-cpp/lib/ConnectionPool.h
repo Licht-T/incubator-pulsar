@@ -17,15 +17,15 @@
  * under the License.
  */
 #ifndef _PULSAR_CONNECTION_POOL_HEADER_
-#define  _PULSAR_CONNECTION_POOL_HEADER_
+#define _PULSAR_CONNECTION_POOL_HEADER_
 
 #include <pulsar/Result.h>
 
 #include "ClientConnection.h"
 
-#include <string>
-#include <map>
 #include <boost/thread/mutex.hpp>
+#include <map>
+#include <string>
 #pragma GCC visibility push(default)
 namespace pulsar {
 
@@ -33,23 +33,23 @@ class ExecutorService;
 
 class ConnectionPool {
  public:
-    ConnectionPool(const ClientConfiguration& conf, ExecutorServiceProviderPtr executorProvider,
-                   const AuthenticationPtr& authentication, bool poolConnections = true);
+  ConnectionPool(const ClientConfiguration& conf,
+                 ExecutorServiceProviderPtr executorProvider,
+                 const AuthenticationPtr& authentication, bool poolConnections = true);
 
-    Future<Result, ClientConnectionWeakPtr> getConnectionAsync(const std::string& endpoint);
+  Future<Result, ClientConnectionWeakPtr> getConnectionAsync(const std::string& endpoint);
 
  private:
-    ClientConfiguration clientConfiguration_;
-    ExecutorServiceProviderPtr executorProvider_;
-    AuthenticationPtr authentication_;
-    typedef std::map<std::string, ClientConnectionWeakPtr> PoolMap;
-    PoolMap pool_;
-    bool poolConnections_;
-    boost::mutex mutex_;
+  ClientConfiguration clientConfiguration_;
+  ExecutorServiceProviderPtr executorProvider_;
+  AuthenticationPtr authentication_;
+  typedef std::map<std::string, ClientConnectionWeakPtr> PoolMap;
+  PoolMap pool_;
+  bool poolConnections_;
+  boost::mutex mutex_;
 
-    friend class ConnectionPoolTest;
+  friend class ConnectionPoolTest;
 };
-
 }
 #pragma GCC visibility pop
-#endif //_PULSAR_CONNECTION_POOL_HEADER_
+#endif  //_PULSAR_CONNECTION_POOL_HEADER_

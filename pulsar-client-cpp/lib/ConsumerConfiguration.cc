@@ -21,76 +21,75 @@
 namespace pulsar {
 
 ConsumerConfiguration::ConsumerConfiguration()
-        : impl_(boost::make_shared<ConsumerConfigurationImpl>()) {
-}
+    : impl_(boost::make_shared<ConsumerConfigurationImpl>()) {}
 
-ConsumerConfiguration::~ConsumerConfiguration() {
-}
+ConsumerConfiguration::~ConsumerConfiguration() {}
 
 ConsumerConfiguration::ConsumerConfiguration(const ConsumerConfiguration& x)
-    : impl_(x.impl_) {
-}
+    : impl_(x.impl_) {}
 
 ConsumerConfiguration& ConsumerConfiguration::operator=(const ConsumerConfiguration& x) {
-    impl_ = x.impl_;
-    return *this;
+  impl_ = x.impl_;
+  return *this;
 }
 
 long ConsumerConfiguration::getBrokerConsumerStatsCacheTimeInMs() const {
-    return impl_->brokerConsumerStatsCacheTimeInMs;
+  return impl_->brokerConsumerStatsCacheTimeInMs;
 }
 
-void ConsumerConfiguration::setBrokerConsumerStatsCacheTimeInMs(const long cacheTimeInMs) {
-    impl_->brokerConsumerStatsCacheTimeInMs = cacheTimeInMs;
+void ConsumerConfiguration::setBrokerConsumerStatsCacheTimeInMs(
+    const long cacheTimeInMs) {
+  impl_->brokerConsumerStatsCacheTimeInMs = cacheTimeInMs;
 }
 
 ConsumerConfiguration& ConsumerConfiguration::setConsumerType(ConsumerType consumerType) {
-    impl_->consumerType = consumerType;
-    return *this;
+  impl_->consumerType = consumerType;
+  return *this;
 }
 
 ConsumerType ConsumerConfiguration::getConsumerType() const {
-    return impl_->consumerType;
+  return impl_->consumerType;
 }
 
-ConsumerConfiguration& ConsumerConfiguration::setMessageListener(MessageListener messageListener) {
-    impl_->messageListener = messageListener;
-    impl_->hasMessageListener = true;
-    return *this;
+ConsumerConfiguration& ConsumerConfiguration::setMessageListener(
+    MessageListener messageListener) {
+  impl_->messageListener = messageListener;
+  impl_->hasMessageListener = true;
+  return *this;
 }
 
 MessageListener ConsumerConfiguration::getMessageListener() const {
-    return impl_->messageListener;
+  return impl_->messageListener;
 }
 
 bool ConsumerConfiguration::hasMessageListener() const {
-    return impl_->hasMessageListener;
+  return impl_->hasMessageListener;
 }
 
 void ConsumerConfiguration::setReceiverQueueSize(int size) {
-    impl_->receiverQueueSize = size;
+  impl_->receiverQueueSize = size;
 }
 
 int ConsumerConfiguration::getReceiverQueueSize() const {
-    return impl_->receiverQueueSize;
+  return impl_->receiverQueueSize;
 }
 
 const std::string& ConsumerConfiguration::getConsumerName() const {
-    return impl_->consumerName;
+  return impl_->consumerName;
 }
 
 void ConsumerConfiguration::setConsumerName(const std::string& consumerName) {
-    impl_->consumerName = consumerName;
+  impl_->consumerName = consumerName;
 }
 
 long ConsumerConfiguration::getUnAckedMessagesTimeoutMs() const {
-    return impl_->unAckedMessagesTimeoutMs;
+  return impl_->unAckedMessagesTimeoutMs;
 }
 
 void ConsumerConfiguration::setUnAckedMessagesTimeoutMs(const uint64_t milliSeconds) {
-    if (milliSeconds < 10000) {
-        throw "Consumer Config Exception: Unacknowledged message timeout should be greater than 10 seconds.";
-    }
-    impl_->unAckedMessagesTimeoutMs = milliSeconds;
+  if (milliSeconds < 10000) {
+    throw "Consumer Config Exception: Unacknowledged message timeout should be greater than 10 seconds.";
+  }
+  impl_->unAckedMessagesTimeoutMs = milliSeconds;
 }
 }

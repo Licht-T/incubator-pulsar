@@ -16,8 +16,8 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include <pulsar/Client.h>
 #include <gtest/gtest.h>
+#include <pulsar/Client.h>
 
 #include "../lib/Future.h"
 #include "../lib/Utils.h"
@@ -25,26 +25,26 @@
 using namespace pulsar;
 
 TEST(ProducerTest, producerNotInitialized) {
-    Producer producer;
+  Producer producer;
 
-    Message msg = MessageBuilder().setContent("test").build();
+  Message msg = MessageBuilder().setContent("test").build();
 
-    ASSERT_EQ(ResultProducerNotInitialized, producer.send(msg));
+  ASSERT_EQ(ResultProducerNotInitialized, producer.send(msg));
 
-    Promise<Result, Message> promise;
-    producer.sendAsync(msg, WaitForCallbackValue<Message>(promise));
+  Promise<Result, Message> promise;
+  producer.sendAsync(msg, WaitForCallbackValue<Message>(promise));
 
-    Message m;
-    ASSERT_EQ(ResultProducerNotInitialized, promise.getFuture().get(m));
+  Message m;
+  ASSERT_EQ(ResultProducerNotInitialized, promise.getFuture().get(m));
 
-    ASSERT_EQ(ResultProducerNotInitialized, producer.close());
+  ASSERT_EQ(ResultProducerNotInitialized, producer.close());
 
-    Promise<bool, Result> promiseClose;
-    producer.closeAsync(WaitForCallback(promiseClose));
+  Promise<bool, Result> promiseClose;
+  producer.closeAsync(WaitForCallback(promiseClose));
 
-    Result result;
-    promiseClose.getFuture().get(result);
-    ASSERT_EQ(ResultProducerNotInitialized, result);
+  Result result;
+  promiseClose.getFuture().get(result);
+  ASSERT_EQ(ResultProducerNotInitialized, result);
 
-    ASSERT_TRUE(producer.getTopic().empty());
+  ASSERT_TRUE(producer.getTopic().empty());
 }

@@ -29,52 +29,55 @@ namespace pulsar {
  * Collection of return codes
  */
 enum Result {
-    ResultOk,            /// Operation successful
+  ResultOk,  /// Operation successful
 
-    ResultUnknownError,  /// Unknown error happened on broker
+  ResultUnknownError,  /// Unknown error happened on broker
 
-    ResultInvalidConfiguration,  /// Invalid configuration
+  ResultInvalidConfiguration,  /// Invalid configuration
 
-    ResultTimeout,       /// Operation timed out
-    ResultLookupError,   /// Broker lookup failed
-    ResultConnectError,  /// Failed to connect to broker
-    ResultReadError,     /// Failed to read from socket
+  ResultTimeout,       /// Operation timed out
+  ResultLookupError,   /// Broker lookup failed
+  ResultConnectError,  /// Failed to connect to broker
+  ResultReadError,     /// Failed to read from socket
 
-    ResultAuthenticationError,             /// Authentication failed on broker
-    ResultAuthorizationError,  /// Client is not authorized to create producer/consumer
-    ResultErrorGettingAuthenticationData,  /// Client cannot find authorization data
+  ResultAuthenticationError,  /// Authentication failed on broker
+  ResultAuthorizationError,   /// Client is not authorized to create producer/consumer
+  ResultErrorGettingAuthenticationData,  /// Client cannot find authorization data
 
-    ResultBrokerMetadataError,     /// Broker failed in updating metadata
-    ResultBrokerPersistenceError,  /// Broker failed to persist entry
-    ResultChecksumError,           /// Corrupt message checksum failure
+  ResultBrokerMetadataError,     /// Broker failed in updating metadata
+  ResultBrokerPersistenceError,  /// Broker failed to persist entry
+  ResultChecksumError,           /// Corrupt message checksum failure
 
-    ResultConsumerBusy,  /// Exclusive consumer is already connected
-    ResultNotConnected,  /// Producer/Consumer is not currently connected to broker
-    ResultAlreadyClosed,  /// Producer/Consumer is already closed and not accepting any operation
+  ResultConsumerBusy,   /// Exclusive consumer is already connected
+  ResultNotConnected,   /// Producer/Consumer is not currently connected to broker
+  ResultAlreadyClosed,  /// Producer/Consumer is already closed and not accepting any
+                        /// operation
 
-    ResultInvalidMessage,  /// Error in publishing an already used message
+  ResultInvalidMessage,  /// Error in publishing an already used message
 
-    ResultConsumerNotInitialized,  /// Consumer is not initialized
-    ResultProducerNotInitialized,  /// Producer is not initialized
-    ResultTooManyLookupRequestException, /// Too Many concurrent LookupRequest
+  ResultConsumerNotInitialized,         /// Consumer is not initialized
+  ResultProducerNotInitialized,         /// Producer is not initialized
+  ResultTooManyLookupRequestException,  /// Too Many concurrent LookupRequest
 
-    ResultInvalidTopicName,         /// Invalid topic name
-    ResultInvalidUrl,  /// Client Initialized with Invalid Broker Url (VIP Url passed to Client Constructor)
-    ResultServiceUnitNotReady,  /// Service Unit unloaded between client did lookup and producer/consumer got created
-    ResultOperationNotSupported,
-    ResultProducerBlockedQuotaExceededError,     /// Producer is blocked
-    ResultProducerBlockedQuotaExceededException,  /// Producer is getting exception
-    ResultProducerQueueIsFull, /// Producer queue is full
-    ResultMessageTooBig, /// Trying to send a messages exceeding the max size
-    ResultTopicNotFound, /// Topic not found
-    ResultSubscriptionNotFound, /// Subscription not found
-    ResultConsumerNotFound, /// Consumer not found
-    ResultUnsupportedVersionError /// Error when an older client/version doesn't support a required feature
+  ResultInvalidTopicName,  /// Invalid topic name
+  ResultInvalidUrl,  /// Client Initialized with Invalid Broker Url (VIP Url passed to
+                     /// Client Constructor)
+  ResultServiceUnitNotReady,  /// Service Unit unloaded between client did lookup and
+                              /// producer/consumer got created
+  ResultOperationNotSupported,
+  ResultProducerBlockedQuotaExceededError,      /// Producer is blocked
+  ResultProducerBlockedQuotaExceededException,  /// Producer is getting exception
+  ResultProducerQueueIsFull,                    /// Producer queue is full
+  ResultMessageTooBig,           /// Trying to send a messages exceeding the max size
+  ResultTopicNotFound,           /// Topic not found
+  ResultSubscriptionNotFound,    /// Subscription not found
+  ResultConsumerNotFound,        /// Consumer not found
+  ResultUnsupportedVersionError  /// Error when an older client/version doesn't support a
+                                 /// required feature
 };
 
 // Return string representation of result code
 const char* strResult(Result result);
-
 }
 
 std::ostream& operator<<(std::ostream& s, pulsar::Result result);

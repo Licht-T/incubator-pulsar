@@ -29,103 +29,105 @@ class PulsarWrapper;
 
 class MessageBuilder {
  public:
+  MessageBuilder();
 
-    MessageBuilder();
+  typedef std::map<std::string, std::string> StringMap;
 
-    typedef std::map<std::string, std::string> StringMap;
+  /**
+   * Finalize the immutable message
+   */
+  Message build();
 
-    /**
-     * Finalize the immutable message
-     */
-    Message build();
+  /**
+   * Set content of the message. The message contents will be managed by the system.
+   */
+  MessageBuilder& setContent(const void* data, size_t size);
+  MessageBuilder& setContent(const std::string& data);
 
-    /**
-     * Set content of the message. The message contents will be managed by the system.
-     */
-    MessageBuilder& setContent(const void* data, size_t size);
-    MessageBuilder& setContent(const std::string& data);
+  /**
+   * Set content of the message to a buffer already allocated by the caller. No copies of
+   * this buffer will be made. The caller is responsible to ensure the memory buffer is
+   * valid until the message has been persisted (or an error is returned).
+   */
+  MessageBuilder& setAllocatedContent(void* data, size_t size);
 
-    /**
-     * Set content of the message to a buffer already allocated by the caller. No copies of
-     * this buffer will be made. The caller is responsible to ensure the memory buffer is
-     * valid until the message has been persisted (or an error is returned).
-     */
-    MessageBuilder& setAllocatedContent(void* data, size_t size);
+  /**
+   * Sets a new property on a message.
+   * @param name   the name of the property
+   * @param value  the associated value
+   */
+  MessageBuilder& setProperty(const std::string& name, const std::string& value);
 
-    /**
-     * Sets a new property on a message.
-     * @param name   the name of the property
-     * @param value  the associated value
-     */
-    MessageBuilder& setProperty(const std::string& name, const std::string& value);
+  /**
+   * Add all the properties in the provided map
+   */
+  MessageBuilder& setProperties(const StringMap& properties);
 
-    /**
-     * Add all the properties in the provided map
-     */
-    MessageBuilder& setProperties(const StringMap& properties);
+  /*
+   * set partition key for the message routing
+   * @param hash of this key is used to determine message's destination partition
+   */
+  MessageBuilder& setPartitionKey(const std::string& partitionKey);
 
-    /*
-     * set partition key for the message routing
-     * @param hash of this key is used to determine message's destination partition
-     */
-    MessageBuilder& setPartitionKey(const std::string& partitionKey);
+  /**
+   * Set the event timestamp for the message.
+   */
+  MessageBuilder& setEventTimestamp(uint64_t eventTimestamp);
 
-    /**
-     * Set the event timestamp for the message.
-     */
-    MessageBuilder& setEventTimestamp(uint64_t eventTimestamp);
+  /**
+   * Specify a custom sequence id for the message being published.
+   * <p>
+   * The sequence id can be used for deduplication purposes and it needs to follow these
+   * rules:
+   * <ol>
+   * <li><code>sequenceId >= 0</code>
+   * <li>Sequence id for a message needs to be greater than sequence id for earlier
+   * messages:
+   * <code>sequenceId(N+1) > sequenceId(N)</code>
+   * <li>It's not necessary for sequence ids to be consecutive. There can be holes between
+   * messages. Eg. the
+   * <code>sequenceId</code> could represent an offset or a cumulative size.
+   * </ol>
+   *
+   * @param sequenceId
+   *            the sequence id to assign to the current message
+   * @since 1.20.0
+   */
+  MessageBuilder& setSequenceId(int64_t sequenceId);
 
-    /**
-     * Specify a custom sequence id for the message being published.
-     * <p>
-     * The sequence id can be used for deduplication purposes and it needs to follow these rules:
-     * <ol>
-     * <li><code>sequenceId >= 0</code>
-     * <li>Sequence id for a message needs to be greater than sequence id for earlier messages:
-     * <code>sequenceId(N+1) > sequenceId(N)</code>
-     * <li>It's not necessary for sequence ids to be consecutive. There can be holes between messages. Eg. the
-     * <code>sequenceId</code> could represent an offset or a cumulative size.
-     * </ol>
-     *
-     * @param sequenceId
-     *            the sequence id to assign to the current message
-     * @since 1.20.0
-     */
-    MessageBuilder& setSequenceId(int64_t sequenceId);
+  /**
+   * override namespace replication clusters.  note that it is the
+   * caller's responsibility to provide valid cluster names, and that
+   * all clusters have been previously configured as destinations.
+   *
+   * given an empty list, the message will replicate per the namespace
+   * configuration.
+   *
+   * @param clusters where to send this message.
+   */
+  MessageBuilder& setReplicationClusters(const std::vector<std::string>& clusters);
 
-    /**
-     * override namespace replication clusters.  note that it is the
-     * caller's responsibility to provide valid cluster names, and that
-     * all clusters have been previously configured as destinations.
-     *
-     * given an empty list, the message will replicate per the namespace
-     * configuration.
-     *
-     * @param clusters where to send this message.
-     */
-    MessageBuilder& setReplicationClusters(const std::vector<std::string>& clusters);
+  /**
+   * Do not replicate this message
+   * @param flag if true, disable replication, otherwise use default
+   * replication
+   */
+  MessageBuilder& disableReplication(bool flag);
 
-    /**
-     * Do not replicate this message
-     * @param flag if true, disable replication, otherwise use default
-     * replication
-     */
-    MessageBuilder& disableReplication(bool flag);
+  /**
+   * create a empty message, with no properties or data
+   *
+   */
+  MessageBuilder& create();
 
-    /**
-     * create a empty message, with no properties or data
-     *
-     */
-    MessageBuilder& create();
  private:
-    MessageBuilder(const MessageBuilder&);
-    void checkMetadata();
-    static boost::shared_ptr<MessageImpl> createMessageImpl();
-    Message::MessageImplPtr impl_;
+  MessageBuilder(const MessageBuilder&);
+  void checkMetadata();
+  static boost::shared_ptr<MessageImpl> createMessageImpl();
+  Message::MessageImplPtr impl_;
 
-    friend class PulsarWrapper;
+  friend class PulsarWrapper;
 };
-
 }
 
 #pragma GCC visibility pop

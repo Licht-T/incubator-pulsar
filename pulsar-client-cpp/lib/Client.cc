@@ -16,114 +16,109 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include <iostream>
 #include <pulsar/Client.h>
+#include <iostream>
 #include <utility>
 
 #include <boost/make_shared.hpp>
 #include <boost/smart_ptr.hpp>
 
 #include "ClientImpl.h"
-#include "Utils.h"
 #include "ExecutorService.h"
 #include "LogUtils.h"
+#include "Utils.h"
 
 DECLARE_LOG_OBJECT()
 
 namespace pulsar {
 
-Client::Client(const boost::shared_ptr<ClientImpl> impl) : impl_(impl) {
-}
+Client::Client(const boost::shared_ptr<ClientImpl> impl) : impl_(impl) {}
 
 Client::Client(const std::string& serviceUrl)
-        : impl_(boost::make_shared<ClientImpl>(serviceUrl, ClientConfiguration(), true)) {
-}
+    : impl_(boost::make_shared<ClientImpl>(serviceUrl, ClientConfiguration(), true)) {}
 
-Client::Client(const std::string& serviceUrl, const ClientConfiguration& clientConfiguration)
-        : impl_(boost::make_shared<ClientImpl>(serviceUrl, clientConfiguration, true)) {
-}
+Client::Client(const std::string& serviceUrl,
+               const ClientConfiguration& clientConfiguration)
+    : impl_(boost::make_shared<ClientImpl>(serviceUrl, clientConfiguration, true)) {}
 
-Client::Client(const std::string& serviceUrl, const ClientConfiguration& clientConfiguration,
-               bool poolConnections)
-        : impl_(boost::make_shared<ClientImpl>(serviceUrl, clientConfiguration, poolConnections)) {
-}
+Client::Client(const std::string& serviceUrl,
+               const ClientConfiguration& clientConfiguration, bool poolConnections)
+    : impl_(boost::make_shared<ClientImpl>(serviceUrl, clientConfiguration,
+                                           poolConnections)) {}
 
 Result Client::createProducer(const std::string& topic, Producer& producer) {
-    return createProducer(topic, ProducerConfiguration(), producer);
+  return createProducer(topic, ProducerConfiguration(), producer);
 }
 
 Result Client::createProducer(const std::string& topic, const ProducerConfiguration& conf,
                               Producer& producer) {
-    Promise<Result, Producer> promise;
-    createProducerAsync(topic, conf, WaitForCallbackValue<Producer>(promise));
-    Future<Result, Producer> future = promise.getFuture();
+  Promise<Result, Producer> promise;
+  createProducerAsync(topic, conf, WaitForCallbackValue<Producer>(promise));
+  Future<Result, Producer> future = promise.getFuture();
 
-    return future.get(producer);
+  return future.get(producer);
 }
 
-void Client::createProducerAsync(const std::string& topic, CreateProducerCallback callback) {
-    createProducerAsync(topic, ProducerConfiguration(), callback);
+void Client::createProducerAsync(const std::string& topic,
+                                 CreateProducerCallback callback) {
+  createProducerAsync(topic, ProducerConfiguration(), callback);
 }
 
 void Client::createProducerAsync(const std::string& topic, ProducerConfiguration conf,
                                  CreateProducerCallback callback) {
-    impl_->createProducerAsync(topic, conf, callback);
+  impl_->createProducerAsync(topic, conf, callback);
 }
 
 Result Client::subscribe(const std::string& topic, const std::string& consumerName,
                          Consumer& consumer) {
-    return subscribe(topic, consumerName, ConsumerConfiguration(), consumer);
+  return subscribe(topic, consumerName, ConsumerConfiguration(), consumer);
 }
 
 Result Client::subscribe(const std::string& topic, const std::string& consumerName,
                          const ConsumerConfiguration& conf, Consumer& consumer) {
-    Promise<Result, Consumer> promise;
-    subscribeAsync(topic, consumerName, conf, WaitForCallbackValue<Consumer>(promise));
-    Future<Result, Consumer> future = promise.getFuture();
+  Promise<Result, Consumer> promise;
+  subscribeAsync(topic, consumerName, conf, WaitForCallbackValue<Consumer>(promise));
+  Future<Result, Consumer> future = promise.getFuture();
 
-    return future.get(consumer);
+  return future.get(consumer);
 }
 
 void Client::subscribeAsync(const std::string& topic, const std::string& consumerName,
                             SubscribeCallback callback) {
-    subscribeAsync(topic, consumerName, ConsumerConfiguration(), callback);
+  subscribeAsync(topic, consumerName, ConsumerConfiguration(), callback);
 }
 
 void Client::subscribeAsync(const std::string& topic, const std::string& consumerName,
-                            const ConsumerConfiguration& conf, SubscribeCallback callback) {
-    LOG_DEBUG("Topic is :" << topic);
-    impl_->subscribeAsync(topic, consumerName, conf, callback);
+                            const ConsumerConfiguration& conf,
+                            SubscribeCallback callback) {
+  LOG_DEBUG("Topic is :" << topic);
+  impl_->subscribeAsync(topic, consumerName, conf, callback);
 }
 
 Result Client::createReader(const std::string& topic, const MessageId& startMessageId,
-        const ReaderConfiguration& conf, Reader& reader) {
-    Promise<Result, Reader> promise;
-    createReaderAsync(topic, startMessageId, conf, WaitForCallbackValue<Reader>(promise));
-    Future<Result, Reader> future = promise.getFuture();
+                            const ReaderConfiguration& conf, Reader& reader) {
+  Promise<Result, Reader> promise;
+  createReaderAsync(topic, startMessageId, conf, WaitForCallbackValue<Reader>(promise));
+  Future<Result, Reader> future = promise.getFuture();
 
-    return future.get(reader);
+  return future.get(reader);
 }
 
 void Client::createReaderAsync(const std::string& topic, const MessageId& startMessageId,
-        const ReaderConfiguration& conf, ReaderCallback callback) {
-    impl_->createReaderAsync(topic, startMessageId, conf, callback);
+                               const ReaderConfiguration& conf, ReaderCallback callback) {
+  impl_->createReaderAsync(topic, startMessageId, conf, callback);
 }
 
 Result Client::close() {
-    Promise<bool, Result> promise;
-    closeAsync(WaitForCallback(promise));
+  Promise<bool, Result> promise;
+  closeAsync(WaitForCallback(promise));
 
-    Result result;
-    promise.getFuture().get(result);
-    return result;
+  Result result;
+  promise.getFuture().get(result);
+  return result;
 }
 
-void Client::closeAsync(CloseCallback callback) {
-    impl_->closeAsync(callback);
-}
+void Client::closeAsync(CloseCallback callback) { impl_->closeAsync(callback); }
 
-void Client::shutdown() {
-    impl_->shutdown();
-}
-
+void Client::shutdown() { impl_->shutdown(); }
 }

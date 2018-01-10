@@ -20,15 +20,15 @@
 #define LIB_CLIENTIMPL_H_
 
 #include <pulsar/Client.h>
-#include "ExecutorService.h"
-#include "BinaryProtoLookupService.h"
-#include "ConnectionPool.h"
-#include "LookupDataResult.h"
-#include "DestinationName.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/thread/mutex.hpp>
-#include "ProducerImplBase.h"
+#include "BinaryProtoLookupService.h"
+#include "ConnectionPool.h"
 #include "ConsumerImplBase.h"
+#include "DestinationName.h"
+#include "ExecutorService.h"
+#include "LookupDataResult.h"
+#include "ProducerImplBase.h"
 
 #include <vector>
 
@@ -47,101 +47,91 @@ const std::string generateRandomName();
 
 class ClientImpl : public boost::enable_shared_from_this<ClientImpl> {
  public:
-    ClientImpl(const std::string& serviceUrl, const ClientConfiguration& clientConfiguration,
-               bool poolConnections);
-    ~ClientImpl();
+  ClientImpl(const std::string& serviceUrl,
+             const ClientConfiguration& clientConfiguration, bool poolConnections);
+  ~ClientImpl();
 
-    void createProducerAsync(const std::string& topic, ProducerConfiguration conf,
-                             CreateProducerCallback callback);
+  void createProducerAsync(const std::string& topic, ProducerConfiguration conf,
+                           CreateProducerCallback callback);
 
-    void subscribeAsync(const std::string& topic, const std::string& consumerName,
-                        const ConsumerConfiguration& conf, SubscribeCallback callback);
+  void subscribeAsync(const std::string& topic, const std::string& consumerName,
+                      const ConsumerConfiguration& conf, SubscribeCallback callback);
 
-    void createReaderAsync(const std::string& topic,
-                           const MessageId& startMessageId,
-                           const ReaderConfiguration& conf,
-                           ReaderCallback callback);
+  void createReaderAsync(const std::string& topic, const MessageId& startMessageId,
+                         const ReaderConfiguration& conf, ReaderCallback callback);
 
-    Future<Result, ClientConnectionWeakPtr> getConnection(const std::string& topic);
-    void handleLookup(Result result, LookupDataResultPtr data,
-                      Promise<Result, ClientConnectionWeakPtr> promise);
-    void handleNewConnection(Result result, const ClientConnectionWeakPtr& conn,
-                             Promise<Result, ClientConnectionWeakPtr> promise);
+  Future<Result, ClientConnectionWeakPtr> getConnection(const std::string& topic);
+  void handleLookup(Result result, LookupDataResultPtr data,
+                    Promise<Result, ClientConnectionWeakPtr> promise);
+  void handleNewConnection(Result result, const ClientConnectionWeakPtr& conn,
+                           Promise<Result, ClientConnectionWeakPtr> promise);
 
-    void closeAsync(CloseCallback callback);
-    void shutdown();
+  void closeAsync(CloseCallback callback);
+  void shutdown();
 
-    uint64_t newProducerId();
-    uint64_t newConsumerId();
-    uint64_t newRequestId();
+  uint64_t newProducerId();
+  uint64_t newConsumerId();
+  uint64_t newRequestId();
 
-    const ClientConfiguration& getClientConfig() const;
+  const ClientConfiguration& getClientConfig() const;
 
-    const ClientConfiguration& conf() const;
-    ExecutorServiceProviderPtr getIOExecutorProvider();
-    ExecutorServiceProviderPtr getListenerExecutorProvider();
-    ExecutorServiceProviderPtr getPartitionListenerExecutorProvider();
-    friend class PulsarFriend;
+  const ClientConfiguration& conf() const;
+  ExecutorServiceProviderPtr getIOExecutorProvider();
+  ExecutorServiceProviderPtr getListenerExecutorProvider();
+  ExecutorServiceProviderPtr getPartitionListenerExecutorProvider();
+  friend class PulsarFriend;
 
  private:
+  void handleCreateProducer(const Result result,
+                            const LookupDataResultPtr partitionMetadata,
+                            DestinationNamePtr dn, ProducerConfiguration conf,
+                            CreateProducerCallback callback);
 
-    void handleCreateProducer(const Result result,
-                              const LookupDataResultPtr partitionMetadata,
-                              DestinationNamePtr dn,
-                              ProducerConfiguration conf,
-                              CreateProducerCallback callback);
+  void handleSubscribe(const Result result, const LookupDataResultPtr partitionMetadata,
+                       DestinationNamePtr dn, const std::string& consumerName,
+                       ConsumerConfiguration conf, SubscribeCallback callback);
 
-    void handleSubscribe(const Result result,
-                             const LookupDataResultPtr partitionMetadata,
-                             DestinationNamePtr dn,
-                             const std::string& consumerName,
-                             ConsumerConfiguration conf,
-                             SubscribeCallback callback);
+  void handleReaderMetadataLookup(const Result result,
+                                  const LookupDataResultPtr partitionMetadata,
+                                  DestinationNamePtr dn, BatchMessageId startMessageId,
+                                  ReaderConfiguration conf, ReaderCallback callback);
 
-    void handleReaderMetadataLookup(const Result result,
-                                    const LookupDataResultPtr partitionMetadata,
-                                    DestinationNamePtr dn, BatchMessageId startMessageId,
-                                    ReaderConfiguration conf, ReaderCallback callback);
+  void handleProducerCreated(Result result, ProducerImplBaseWeakPtr producerWeakPtr,
+                             CreateProducerCallback callback,
+                             ProducerImplBasePtr producer);
+  void handleConsumerCreated(Result result, ConsumerImplBaseWeakPtr consumerWeakPtr,
+                             SubscribeCallback callback, ConsumerImplBasePtr consumer);
 
-    void handleProducerCreated(Result result, ProducerImplBaseWeakPtr producerWeakPtr,
-                               CreateProducerCallback callback, ProducerImplBasePtr producer);
-    void handleConsumerCreated(Result result, ConsumerImplBaseWeakPtr consumerWeakPtr,
-                               SubscribeCallback callback, ConsumerImplBasePtr consumer);
+  typedef boost::shared_ptr<int> SharedInt;
 
-    typedef boost::shared_ptr<int> SharedInt;
+  void handleClose(Result result, SharedInt remaining, ResultCallback callback);
 
-    void handleClose(Result result, SharedInt remaining, ResultCallback callback);
+  enum State { Open, Closing, Closed };
 
-    enum State {
-        Open,
-        Closing,
-        Closed
-    };
+  boost::mutex mutex_;
 
-    boost::mutex mutex_;
+  State state_;
+  std::string serviceUrl_;
+  ClientConfiguration clientConfiguration_;
 
-    State state_;
-    std::string serviceUrl_;
-    ClientConfiguration clientConfiguration_;
+  ExecutorServiceProviderPtr ioExecutorProvider_;
+  ExecutorServiceProviderPtr listenerExecutorProvider_;
+  ExecutorServiceProviderPtr partitionListenerExecutorProvider_;
 
-    ExecutorServiceProviderPtr ioExecutorProvider_;
-    ExecutorServiceProviderPtr listenerExecutorProvider_;
-    ExecutorServiceProviderPtr partitionListenerExecutorProvider_;
+  LookupServicePtr lookupServicePtr_;
+  ConnectionPool pool_;
 
-    LookupServicePtr lookupServicePtr_;
-    ConnectionPool pool_;
+  uint64_t producerIdGenerator_;
+  uint64_t consumerIdGenerator_;
+  uint64_t requestIdGenerator_;
 
-    uint64_t producerIdGenerator_;
-    uint64_t consumerIdGenerator_;
-    uint64_t requestIdGenerator_;
+  typedef std::vector<ProducerImplBaseWeakPtr> ProducersList;
+  ProducersList producers_;
 
-    typedef std::vector<ProducerImplBaseWeakPtr> ProducersList;
-    ProducersList producers_;
+  typedef std::vector<ConsumerImplBaseWeakPtr> ConsumersList;
+  ConsumersList consumers_;
 
-    typedef std::vector<ConsumerImplBaseWeakPtr> ConsumersList;
-    ConsumersList consumers_;
-
-    friend class Client;
+  friend class Client;
 };
 
 typedef boost::shared_ptr<ClientImpl> ClientImplPtr;

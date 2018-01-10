@@ -23,26 +23,27 @@ namespace pulsar {
 
 class UnAckedMessageTrackerEnabled : public UnAckedMessageTrackerInterface {
  public:
-    ~UnAckedMessageTrackerEnabled();
-    UnAckedMessageTrackerEnabled(long timeoutMs, const ClientImplPtr, ConsumerImplBase&);
-    bool add(const MessageId& m);
-    bool remove(const MessageId& m);
-    void removeMessagesTill(const MessageId& msgId);
-    void timeoutHandler();
+  ~UnAckedMessageTrackerEnabled();
+  UnAckedMessageTrackerEnabled(long timeoutMs, const ClientImplPtr, ConsumerImplBase&);
+  bool add(const MessageId& m);
+  bool remove(const MessageId& m);
+  void removeMessagesTill(const MessageId& msgId);
+  void timeoutHandler();
 
-    void clear();
+  void clear();
+
  private:
-    void timeoutHandler(const boost::system::error_code& ec);
-    void timeoutHandlerHelper();
-    bool isEmpty();
-    long size();
-    std::set<MessageId> currentSet_;
-    std::set<MessageId> oldSet_;
-    boost::mutex lock_;
-    DeadlineTimerPtr timer_;
-    ConsumerImplBase& consumerReference_;
-    ClientImplPtr client_;
-    long timeoutMs_;
+  void timeoutHandler(const boost::system::error_code& ec);
+  void timeoutHandlerHelper();
+  bool isEmpty();
+  long size();
+  std::set<MessageId> currentSet_;
+  std::set<MessageId> oldSet_;
+  boost::mutex lock_;
+  DeadlineTimerPtr timer_;
+  ConsumerImplBase& consumerReference_;
+  ClientImplPtr client_;
+  long timeoutMs_;
 };
 }
 

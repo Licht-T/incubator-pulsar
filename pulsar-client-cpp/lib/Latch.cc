@@ -23,48 +23,42 @@
 namespace pulsar {
 
 struct CountIsZero {
-    const int& count_;
+  const int& count_;
 
-    CountIsZero(const int& count)
-            : count_(count) {
-    }
+  CountIsZero(const int& count) : count_(count) {}
 
-    bool operator()() const {
-        return count_ == 0;
-    }
+  bool operator()() const { return count_ == 0; }
 };
 
-Latch::Latch(int count)
-        : state_(boost::make_shared<InternalState>()) {
-    state_->count = count;
+Latch::Latch(int count) : state_(boost::make_shared<InternalState>()) {
+  state_->count = count;
 }
 
 void Latch::countdown() {
-    Lock lock(state_->mutex);
+  Lock lock(state_->mutex);
 
-    state_->count--;
+  state_->count--;
 
-    if (state_->count == 0) {
-        state_->condition.notify_all();
-    }
+  if (state_->count == 0) {
+    state_->condition.notify_all();
+  }
 }
 
 int Latch::getCount() {
-    Lock lock(state_->mutex);
+  Lock lock(state_->mutex);
 
-    return state_->count;
-
+  return state_->count;
 }
 
 void Latch::wait() {
-    Lock lock(state_->mutex);
+  Lock lock(state_->mutex);
 
-    state_->condition.wait(lock, CountIsZero(state_->count));
+  state_->condition.wait(lock, CountIsZero(state_->count));
 }
 
 bool Latch::wait(const boost::posix_time::time_duration& timeout) {
-    Lock lock(state_->mutex);
-    return state_->condition.timed_wait(lock, timeout, CountIsZero(state_->count));
+  Lock lock(state_->mutex);
+  return state_->condition.timed_wait(lock, timeout, CountIsZero(state_->count));
 }
 
 } /* namespace pulsar */

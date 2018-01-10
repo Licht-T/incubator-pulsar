@@ -34,11 +34,11 @@
  */
 
 #include "crc32c_sw.h"
+#include <pthread.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <stdint.h>
 #include <unistd.h>
-#include <pthread.h>
 
 /* CRC-32C (iSCSI) polynomial in reversed bit order. */
 #define POLY 0x82f63b78
@@ -49,54 +49,54 @@ static uint32_t crc32c_table[8][256];
 
 /* Construct table for software CRC-32C calculation. */
 static void crc32c_init_sw(void) {
-    uint32_t n, crc, k;
+  uint32_t n, crc, k;
 
-    for (n = 0; n < 256; n++) {
-        crc = n;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
-        crc32c_table[0][n] = crc;
+  for (n = 0; n < 256; n++) {
+    crc = n;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc = crc & 1 ? (crc >> 1) ^ POLY : crc >> 1;
+    crc32c_table[0][n] = crc;
+  }
+  for (n = 0; n < 256; n++) {
+    crc = crc32c_table[0][n];
+    for (k = 1; k < 8; k++) {
+      crc = crc32c_table[0][crc & 0xff] ^ (crc >> 8);
+      crc32c_table[k][n] = crc;
     }
-    for (n = 0; n < 256; n++) {
-        crc = crc32c_table[0][n];
-        for (k = 1; k < 8; k++) {
-            crc = crc32c_table[0][crc & 0xff] ^ (crc >> 8);
-            crc32c_table[k][n] = crc;
-        }
-    }
+  }
 }
 
 /* Table-driven software version as a fall-back.  This is about 15 times slower
  than using the hardware instructions.  This assumes little-endian integers,
  as is the case on Intel processors that the assembler code here is for. */
 uint32_t crc32c_sw(uint32_t crci, const void *buf, int len) {
-    const char* next = (const char*) buf;
-    uint64_t crc;
+  const char *next = (const char *)buf;
+  uint64_t crc;
 
-    pthread_once(&crc32c_once_sw, crc32c_init_sw);
-    crc = crci ^ 0xffffffff;
-    while (len && ((uintptr_t) next & 7) != 0) {
-        crc = crc32c_table[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
-        len--;
-    }
-    while (len >= 8) {
-        crc ^= *(uint64_t *) next;
-        crc = crc32c_table[7][crc & 0xff] ^ crc32c_table[6][(crc >> 8) & 0xff]
-                ^ crc32c_table[5][(crc >> 16) & 0xff] ^ crc32c_table[4][(crc >> 24) & 0xff]
-                ^ crc32c_table[3][(crc >> 32) & 0xff] ^ crc32c_table[2][(crc >> 40) & 0xff]
-                ^ crc32c_table[1][(crc >> 48) & 0xff] ^ crc32c_table[0][crc >> 56];
-        next += 8;
-        len -= 8;
-    }
-    while (len) {
-        crc = crc32c_table[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
-        len--;
-    }
-    return (uint32_t) crc ^ 0xffffffff;
+  pthread_once(&crc32c_once_sw, crc32c_init_sw);
+  crc = crci ^ 0xffffffff;
+  while (len && ((uintptr_t)next & 7) != 0) {
+    crc = crc32c_table[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
+    len--;
+  }
+  while (len >= 8) {
+    crc ^= *(uint64_t *)next;
+    crc = crc32c_table[7][crc & 0xff] ^ crc32c_table[6][(crc >> 8) & 0xff] ^
+          crc32c_table[5][(crc >> 16) & 0xff] ^ crc32c_table[4][(crc >> 24) & 0xff] ^
+          crc32c_table[3][(crc >> 32) & 0xff] ^ crc32c_table[2][(crc >> 40) & 0xff] ^
+          crc32c_table[1][(crc >> 48) & 0xff] ^ crc32c_table[0][crc >> 56];
+    next += 8;
+    len -= 8;
+  }
+  while (len) {
+    crc = crc32c_table[0][(crc ^ *next++) & 0xff] ^ (crc >> 8);
+    len--;
+  }
+  return (uint32_t)crc ^ 0xffffffff;
 }

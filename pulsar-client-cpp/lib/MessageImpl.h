@@ -21,9 +21,9 @@
 
 #include <pulsar/Message.h>
 #include <pulsar/MessageId.h>
-#include "pulsar/BatchMessageId.h"
-#include "SharedBuffer.h"
 #include "PulsarApi.pb.h"
+#include "SharedBuffer.h"
+#include "pulsar/BatchMessageId.h"
 
 #include <boost/scoped_ptr.hpp>
 
@@ -36,32 +36,32 @@ class BatchMessageContainer;
 
 class MessageImpl {
  public:
-    MessageImpl();
+  MessageImpl();
 
-    const Message::StringMap& properties();
+  const Message::StringMap& properties();
 
-    proto::MessageMetadata metadata;
-    SharedBuffer payload;
-    BatchMessageId messageId;
-    ClientConnection* cnx_;
+  proto::MessageMetadata metadata;
+  SharedBuffer payload;
+  BatchMessageId messageId;
+  ClientConnection* cnx_;
 
-    const std::string& getPartitionKey() const;
-    bool hasPartitionKey() const;
+  const std::string& getPartitionKey() const;
+  bool hasPartitionKey() const;
 
-    uint64_t getPublishTimestamp() const;
-    uint64_t getEventTimestamp() const;
+  uint64_t getPublishTimestamp() const;
+  uint64_t getEventTimestamp() const;
 
-    friend class PulsarWrapper;
-    friend class MessageBuilder;
-private:
-    void setReplicationClusters(const std::vector<std::string>& clusters);
-    void setProperty(const std::string& name, const std::string& value);
-    void disableReplication(bool flag);
-    void setPartitionKey(const std::string& partitionKey);
-    void setEventTimestamp(uint64_t eventTimestamp);
-    Message::StringMap properties_;
+  friend class PulsarWrapper;
+  friend class MessageBuilder;
+
+ private:
+  void setReplicationClusters(const std::vector<std::string>& clusters);
+  void setProperty(const std::string& name, const std::string& value);
+  void disableReplication(bool flag);
+  void setPartitionKey(const std::string& partitionKey);
+  void setEventTimestamp(uint64_t eventTimestamp);
+  Message::StringMap properties_;
 };
-
 }
 
 #endif /* LIB_MESSAGEIMPL_H_ */

@@ -20,23 +20,21 @@
 #include <boost/algorithm/string.hpp>
 
 namespace pulsar {
-    RoundRobinMessageRouter::RoundRobinMessageRouter(unsigned int numPartitions):prevPartition_(0), numPartitions_(numPartitions) {
-    }
+RoundRobinMessageRouter::RoundRobinMessageRouter(unsigned int numPartitions)
+    : prevPartition_(0), numPartitions_(numPartitions) {}
 
-    RoundRobinMessageRouter::~RoundRobinMessageRouter() {
-    }
+RoundRobinMessageRouter::~RoundRobinMessageRouter() {}
 
-    //override
-    int RoundRobinMessageRouter::getPartition(const Message& msg) {
-        //if message has a key, hash the key and return the partition
-        if (msg.hasPartitionKey()) {
-            static StringHash hash;
-            return hash(msg.getPartitionKey()) % numPartitions_;
-        } else {
-            Lock lock(mutex_);
-            //else pick the next partition
-            return prevPartition_++ % numPartitions_;
-        }
-    }
-
+// override
+int RoundRobinMessageRouter::getPartition(const Message& msg) {
+  // if message has a key, hash the key and return the partition
+  if (msg.hasPartitionKey()) {
+    static StringHash hash;
+    return hash(msg.getPartitionKey()) % numPartitions_;
+  } else {
+    Lock lock(mutex_);
+    // else pick the next partition
+    return prevPartition_++ % numPartitions_;
+  }
+}
 }

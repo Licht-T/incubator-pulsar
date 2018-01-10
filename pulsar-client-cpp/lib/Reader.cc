@@ -20,57 +20,52 @@
 #include <pulsar/Reader.h>
 
 #include "Future.h"
-#include "Utils.h"
 #include "ReaderImpl.h"
+#include "Utils.h"
 
 namespace pulsar {
 
 static const std::string EMPTY_STRING;
 
-Reader::Reader() :
-        impl_() {
-}
+Reader::Reader() : impl_() {}
 
-Reader::Reader(ReaderImplPtr impl) :
-        impl_(impl) {
-}
+Reader::Reader(ReaderImplPtr impl) : impl_(impl) {}
 
 const std::string& Reader::getTopic() const {
-    return impl_ != NULL ? impl_->getTopic() : EMPTY_STRING;
+  return impl_ != NULL ? impl_->getTopic() : EMPTY_STRING;
 }
 
 Result Reader::readNext(Message& msg) {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
 
-    return impl_->readNext(msg);
+  return impl_->readNext(msg);
 }
 
 Result Reader::readNext(Message& msg, int timeoutMs) {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
 
-    return impl_->readNext(msg, timeoutMs);
+  return impl_->readNext(msg, timeoutMs);
 }
 
 Result Reader::close() {
-    Promise<bool, Result> promise;
-    closeAsync(WaitForCallback(promise));
+  Promise<bool, Result> promise;
+  closeAsync(WaitForCallback(promise));
 
-    Result result;
-    promise.getFuture().get(result);
-    return result;
+  Result result;
+  promise.getFuture().get(result);
+  return result;
 }
 
 void Reader::closeAsync(ResultCallback callback) {
-    if (!impl_) {
-        callback(ResultConsumerNotInitialized);
-        return;
-    }
+  if (!impl_) {
+    callback(ResultConsumerNotInitialized);
+    return;
+  }
 
-    impl_->closeAsync(callback);
+  impl_->closeAsync(callback);
 }
-
 }

@@ -18,8 +18,8 @@
  */
 #ifndef PULSAR_CONSUMER_IMPL_BASE_HEADER
 #define PULSAR_CONSUMER_IMPL_BASE_HEADER
-#include <pulsar/Message.h>
 #include <pulsar/Consumer.h>
+#include <pulsar/Message.h>
 
 namespace pulsar {
 class ConsumerImplBase;
@@ -28,28 +28,28 @@ typedef boost::weak_ptr<ConsumerImplBase> ConsumerImplBaseWeakPtr;
 typedef boost::shared_ptr<ConsumerImplBase> ConsumerImplBasePtr;
 
 class ConsumerImplBase {
-public:
-    virtual ~ConsumerImplBase(){
-    }
-    virtual Future<Result, ConsumerImplBaseWeakPtr> getConsumerCreatedFuture() = 0;
-    virtual const std::string& getSubscriptionName() const = 0;
-    virtual const std::string& getTopic() const  = 0;
-    virtual Result receive(Message& msg) = 0;
-    virtual Result receive(Message& msg, int timeout) = 0;
-    virtual void unsubscribeAsync(ResultCallback callback) = 0;
-    virtual void acknowledgeAsync(const MessageId& msgId, ResultCallback callback) = 0;
-    virtual void acknowledgeCumulativeAsync(const MessageId& msgId, ResultCallback callback) = 0;
-    virtual void closeAsync(ResultCallback callback) = 0;
-    virtual void start() = 0;
-    virtual void shutdown() = 0;
-    virtual bool isClosed() = 0;
-    virtual bool isOpen() = 0;
-    virtual Result pauseMessageListener() = 0;
-    virtual Result resumeMessageListener() = 0;
-    virtual void redeliverUnacknowledgedMessages() = 0;
-    virtual const std::string& getName() const = 0;
-    virtual int getNumOfPrefetchedMessages() const = 0;
-    virtual void getBrokerConsumerStatsAsync(BrokerConsumerStatsCallback callback) = 0;
+ public:
+  virtual ~ConsumerImplBase() {}
+  virtual Future<Result, ConsumerImplBaseWeakPtr> getConsumerCreatedFuture() = 0;
+  virtual const std::string& getSubscriptionName() const = 0;
+  virtual const std::string& getTopic() const = 0;
+  virtual Result receive(Message& msg) = 0;
+  virtual Result receive(Message& msg, int timeout) = 0;
+  virtual void unsubscribeAsync(ResultCallback callback) = 0;
+  virtual void acknowledgeAsync(const MessageId& msgId, ResultCallback callback) = 0;
+  virtual void acknowledgeCumulativeAsync(const MessageId& msgId,
+                                          ResultCallback callback) = 0;
+  virtual void closeAsync(ResultCallback callback) = 0;
+  virtual void start() = 0;
+  virtual void shutdown() = 0;
+  virtual bool isClosed() = 0;
+  virtual bool isOpen() = 0;
+  virtual Result pauseMessageListener() = 0;
+  virtual Result resumeMessageListener() = 0;
+  virtual void redeliverUnacknowledgedMessages() = 0;
+  virtual const std::string& getName() const = 0;
+  virtual int getNumOfPrefetchedMessages() const = 0;
+  virtual void getBrokerConsumerStatsAsync(BrokerConsumerStatsCallback callback) = 0;
 };
 }
-#endif //PULSAR_CONSUMER_IMPL_BASE_HEADER
+#endif  // PULSAR_CONSUMER_IMPL_BASE_HEADER

@@ -16,13 +16,13 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-#include "LogUtils.h"
 #include <gtest/gtest.h>
+#include "LogUtils.h"
 
 DECLARE_LOG_OBJECT()
 
 TEST(LoggerTest, testLogger) {
-    LOG_DEBUG("Testing logger...");
-    int a = 5;
-    LOG_INFO("Testing logger with arguments " << a);
+  LOG_DEBUG("Testing logger...");
+  int a = 5;
+  LOG_INFO("Testing logger with arguments " << a);
 }

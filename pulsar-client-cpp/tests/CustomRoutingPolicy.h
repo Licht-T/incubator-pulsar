@@ -19,14 +19,12 @@
 #ifndef CUSTOM_ROUTER_POLICY_HEADER_
 #define CUSTOM_ROUTER_POLICY_HEADER_
 
-#include <cstdlib> // rand()
 #include <boost/algorithm/string.hpp>
+#include <cstdlib>  // rand()
 namespace pulsar {
 class CustomRoutingPolicy : public MessageRoutingPolicy {
-    int getPartition(const Message& msg) {
-        return 0;
-    }
+  int getPartition(const Message& msg) { return 0; }
 };
 }
 
-#endif // CUSTOM_ROUTER_POLICY_HEADER_
+#endif  // CUSTOM_ROUTER_POLICY_HEADER_

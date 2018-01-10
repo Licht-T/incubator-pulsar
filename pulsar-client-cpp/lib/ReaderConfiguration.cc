@@ -21,48 +21,41 @@
 namespace pulsar {
 
 ReaderConfiguration::ReaderConfiguration()
-        : impl_(boost::make_shared<ReaderConfigurationImpl>()) {
-}
+    : impl_(boost::make_shared<ReaderConfigurationImpl>()) {}
 
-ReaderConfiguration::~ReaderConfiguration() {
-}
+ReaderConfiguration::~ReaderConfiguration() {}
 
-ReaderConfiguration::ReaderConfiguration(const ReaderConfiguration& x)
-    : impl_(x.impl_) {
-}
+ReaderConfiguration::ReaderConfiguration(const ReaderConfiguration& x) : impl_(x.impl_) {}
 
 ReaderConfiguration& ReaderConfiguration::operator=(const ReaderConfiguration& x) {
-    impl_ = x.impl_;
-    return *this;
+  impl_ = x.impl_;
+  return *this;
 }
 
-ReaderConfiguration& ReaderConfiguration::setReaderListener(ReaderListener readerListener) {
-    impl_->readerListener = readerListener;
-    impl_->hasReaderListener = true;
-    return *this;
+ReaderConfiguration& ReaderConfiguration::setReaderListener(
+    ReaderListener readerListener) {
+  impl_->readerListener = readerListener;
+  impl_->hasReaderListener = true;
+  return *this;
 }
 
 ReaderListener ReaderConfiguration::getReaderListener() const {
-    return impl_->readerListener;
+  return impl_->readerListener;
 }
 
-bool ReaderConfiguration::hasReaderListener() const {
-    return impl_->hasReaderListener;
-}
+bool ReaderConfiguration::hasReaderListener() const { return impl_->hasReaderListener; }
 
 void ReaderConfiguration::setReceiverQueueSize(int size) {
-    impl_->receiverQueueSize = size;
+  impl_->receiverQueueSize = size;
 }
 
-int ReaderConfiguration::getReceiverQueueSize() const {
-    return impl_->receiverQueueSize;
-}
+int ReaderConfiguration::getReceiverQueueSize() const { return impl_->receiverQueueSize; }
 
 const std::string& ReaderConfiguration::getReaderName() const {
-    return impl_->readerName;
+  return impl_->readerName;
 }
 
 void ReaderConfiguration::setReaderName(const std::string& readerName) {
-    impl_->readerName = readerName;
+  impl_->readerName = readerName;
 }
 }

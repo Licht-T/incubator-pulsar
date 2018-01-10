@@ -24,16 +24,16 @@
 
 namespace pulsar {
 
-    class SinglePartitionMessageRouter : public MessageRoutingPolicy {
-  public:
-	SinglePartitionMessageRouter(unsigned int numPartitions);
-        typedef boost::hash<std::string> StringHash;
-        virtual ~SinglePartitionMessageRouter();
-        virtual int getPartition(const Message& msg);
-    private:
-	unsigned int numPartitions_;
-	int selectedSinglePartition_;
-    };
+class SinglePartitionMessageRouter : public MessageRoutingPolicy {
+ public:
+  SinglePartitionMessageRouter(unsigned int numPartitions);
+  typedef boost::hash<std::string> StringHash;
+  virtual ~SinglePartitionMessageRouter();
+  virtual int getPartition(const Message& msg);
 
+ private:
+  unsigned int numPartitions_;
+  int selectedSinglePartition_;
+};
 }
-#endif // PULSAR_SINGLE_PARTITION_MESSAGE_ROUTER_HEADER_
+#endif  // PULSAR_SINGLE_PARTITION_MESSAGE_ROUTER_HEADER_

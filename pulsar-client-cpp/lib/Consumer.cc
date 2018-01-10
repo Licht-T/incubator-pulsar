@@ -16,185 +16,183 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+#include <lib/BrokerConsumerStatsImpl.h>
+#include <lib/Latch.h>
 #include <pulsar/Consumer.h>
 #include <pulsar/MessageBuilder.h>
 #include "ConsumerImpl.h"
 #include "Utils.h"
-#include <lib/BrokerConsumerStatsImpl.h>
-#include <lib/Latch.h>
 
 namespace pulsar {
 
 static const std::string EMPTY_STRING;
 
-Consumer::Consumer()
-        : impl_() {
-}
+Consumer::Consumer() : impl_() {}
 
-Consumer::Consumer(ConsumerImplBasePtr impl)
-        : impl_(impl) {
-}
+Consumer::Consumer(ConsumerImplBasePtr impl) : impl_(impl) {}
 
 const std::string& Consumer::getTopic() const {
-    return impl_ != NULL ? impl_->getTopic() : EMPTY_STRING;
+  return impl_ != NULL ? impl_->getTopic() : EMPTY_STRING;
 }
 
 const std::string& Consumer::getSubscriptionName() const {
-    return impl_ != NULL ? impl_->getSubscriptionName() : EMPTY_STRING;
+  return impl_ != NULL ? impl_->getSubscriptionName() : EMPTY_STRING;
 }
 
 Result Consumer::unsubscribe() {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
-    Promise<bool, Result> promise;
-    impl_->unsubscribeAsync(WaitForCallback(promise));
-    Result result;
-    promise.getFuture().get(result);
-    return result;
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
+  Promise<bool, Result> promise;
+  impl_->unsubscribeAsync(WaitForCallback(promise));
+  Result result;
+  promise.getFuture().get(result);
+  return result;
 }
 
 void Consumer::unsubscribeAsync(ResultCallback callback) {
-    if (!impl_) {
-        callback(ResultConsumerNotInitialized);
-        return;
-    }
+  if (!impl_) {
+    callback(ResultConsumerNotInitialized);
+    return;
+  }
 
-    impl_->unsubscribeAsync(callback);
+  impl_->unsubscribeAsync(callback);
 }
 
 Result Consumer::receive(Message& msg) {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
 
-    return impl_->receive(msg);
+  return impl_->receive(msg);
 }
 
 Result Consumer::receive(Message& msg, int timeoutMs) {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
 
-    return impl_->receive(msg, timeoutMs);
+  return impl_->receive(msg, timeoutMs);
 }
 
 Result Consumer::acknowledge(const Message& message) {
-    return acknowledge(message.getMessageId());
+  return acknowledge(message.getMessageId());
 }
 
 Result Consumer::acknowledge(const MessageId& messageId) {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
-    Promise<bool, Result> promise;
-    impl_->acknowledgeAsync(messageId, WaitForCallback(promise));
-    Result result;
-    promise.getFuture().get(result);
-    return result;
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
+  Promise<bool, Result> promise;
+  impl_->acknowledgeAsync(messageId, WaitForCallback(promise));
+  Result result;
+  promise.getFuture().get(result);
+  return result;
 }
 
 void Consumer::acknowledgeAsync(const Message& message, ResultCallback callback) {
-    if (!impl_) {
-        callback(ResultConsumerNotInitialized);
-        return;
-    }
+  if (!impl_) {
+    callback(ResultConsumerNotInitialized);
+    return;
+  }
 
-    impl_->acknowledgeAsync(message.getMessageId(), callback);
+  impl_->acknowledgeAsync(message.getMessageId(), callback);
 }
 
 void Consumer::acknowledgeAsync(const MessageId& messageId, ResultCallback callback) {
-    if (!impl_) {
-        callback(ResultConsumerNotInitialized);
-        return;
-    }
+  if (!impl_) {
+    callback(ResultConsumerNotInitialized);
+    return;
+  }
 
-    impl_->acknowledgeAsync(messageId, callback);
+  impl_->acknowledgeAsync(messageId, callback);
 }
 
 Result Consumer::acknowledgeCumulative(const Message& message) {
-    return acknowledgeCumulative(message.getMessageId());
+  return acknowledgeCumulative(message.getMessageId());
 }
 
 Result Consumer::acknowledgeCumulative(const MessageId& messageId) {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
 
-    Promise<bool, Result> promise;
-    impl_->acknowledgeCumulativeAsync(messageId, WaitForCallback(promise));
-    Result result;
-    promise.getFuture().get(result);
-    return result;
+  Promise<bool, Result> promise;
+  impl_->acknowledgeCumulativeAsync(messageId, WaitForCallback(promise));
+  Result result;
+  promise.getFuture().get(result);
+  return result;
 }
 
-void Consumer::acknowledgeCumulativeAsync(const Message& message, ResultCallback callback) {
-    acknowledgeCumulativeAsync(message.getMessageId(), callback);
+void Consumer::acknowledgeCumulativeAsync(const Message& message,
+                                          ResultCallback callback) {
+  acknowledgeCumulativeAsync(message.getMessageId(), callback);
 }
 
-void Consumer::acknowledgeCumulativeAsync(const MessageId& messageId, ResultCallback callback) {
-    if (!impl_) {
-        callback(ResultConsumerNotInitialized);
-        return;
-    }
+void Consumer::acknowledgeCumulativeAsync(const MessageId& messageId,
+                                          ResultCallback callback) {
+  if (!impl_) {
+    callback(ResultConsumerNotInitialized);
+    return;
+  }
 
-    impl_->acknowledgeCumulativeAsync(messageId, callback);
+  impl_->acknowledgeCumulativeAsync(messageId, callback);
 }
 
 Result Consumer::close() {
-    Promise<bool, Result> promise;
-    closeAsync(WaitForCallback(promise));
+  Promise<bool, Result> promise;
+  closeAsync(WaitForCallback(promise));
 
-    Result result;
-    promise.getFuture().get(result);
-    return result;
+  Result result;
+  promise.getFuture().get(result);
+  return result;
 }
 
 void Consumer::closeAsync(ResultCallback callback) {
-    if (!impl_) {
-        callback(ResultConsumerNotInitialized);
-        return;
-    }
+  if (!impl_) {
+    callback(ResultConsumerNotInitialized);
+    return;
+  }
 
-    impl_->closeAsync(callback);
+  impl_->closeAsync(callback);
 }
 
 Result Consumer::pauseMessageListener() {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
 
-    return impl_->pauseMessageListener();
+  return impl_->pauseMessageListener();
 }
 
 Result Consumer::resumeMessageListener() {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
 
-    return impl_->resumeMessageListener();
+  return impl_->resumeMessageListener();
 }
 
 void Consumer::redeliverUnacknowledgedMessages() {
-    if (impl_) {
-        impl_->redeliverUnacknowledgedMessages();
-    }
+  if (impl_) {
+    impl_->redeliverUnacknowledgedMessages();
+  }
 }
 
 Result Consumer::getBrokerConsumerStats(BrokerConsumerStats& brokerConsumerStats) {
-    if (!impl_) {
-        return ResultConsumerNotInitialized;
-    }
-    Promise<Result, BrokerConsumerStats> promise;
-    getBrokerConsumerStatsAsync(WaitForCallbackValue<BrokerConsumerStats>(promise));
-    return promise.getFuture().get(brokerConsumerStats);
+  if (!impl_) {
+    return ResultConsumerNotInitialized;
+  }
+  Promise<Result, BrokerConsumerStats> promise;
+  getBrokerConsumerStatsAsync(WaitForCallbackValue<BrokerConsumerStats>(promise));
+  return promise.getFuture().get(brokerConsumerStats);
 }
 
 void Consumer::getBrokerConsumerStatsAsync(BrokerConsumerStatsCallback callback) {
-    if (!impl_) {
-        callback(ResultConsumerNotInitialized, BrokerConsumerStats());
-        return;
-    }
-    impl_->getBrokerConsumerStatsAsync(callback);
+  if (!impl_) {
+    callback(ResultConsumerNotInitialized, BrokerConsumerStats());
+    return;
+  }
+  impl_->getBrokerConsumerStatsAsync(callback);
 }
 }

@@ -23,113 +23,113 @@
 using namespace pulsar;
 
 const char* pulsar::strResult(Result result) {
-    switch (result) {
-        case ResultOk:
-            return "Ok";
+  switch (result) {
+    case ResultOk:
+      return "Ok";
 
-        case ResultUnknownError:
-            return "UnknownError";
+    case ResultUnknownError:
+      return "UnknownError";
 
-        case ResultInvalidConfiguration:
-            return "InvalidConfiguration";
+    case ResultInvalidConfiguration:
+      return "InvalidConfiguration";
 
-        case ResultTimeout:
-            return "TimeOut";
+    case ResultTimeout:
+      return "TimeOut";
 
-        case ResultLookupError:
-            return "LookupError";
+    case ResultLookupError:
+      return "LookupError";
 
-        case ResultConnectError:
-            return "ConnectError";
+    case ResultConnectError:
+      return "ConnectError";
 
-        case ResultAuthenticationError:
-            return "AuthenticationError";
+    case ResultAuthenticationError:
+      return "AuthenticationError";
 
-        case ResultAuthorizationError:
-            return "AuthorizationError";
+    case ResultAuthorizationError:
+      return "AuthorizationError";
 
-        case ResultErrorGettingAuthenticationData:
-            return "ErrorGettingAuthenticationData";
+    case ResultErrorGettingAuthenticationData:
+      return "ErrorGettingAuthenticationData";
 
-        case ResultBrokerMetadataError:
-            return "BrokerMetadataError";
+    case ResultBrokerMetadataError:
+      return "BrokerMetadataError";
 
-        case ResultBrokerPersistenceError:
-            return "BrokerPersistenceError";
+    case ResultBrokerPersistenceError:
+      return "BrokerPersistenceError";
 
-        case ResultConsumerBusy:
-            return "ConsumerBusy";
+    case ResultConsumerBusy:
+      return "ConsumerBusy";
 
-        case ResultNotConnected:
-            return "NotConnected";
+    case ResultNotConnected:
+      return "NotConnected";
 
-        case ResultReadError:
-            return "ReadError";
+    case ResultReadError:
+      return "ReadError";
 
-        case ResultAlreadyClosed:
-            return "AlreadyClosed";
+    case ResultAlreadyClosed:
+      return "AlreadyClosed";
 
-        case ResultInvalidMessage:
-            return "InvalidMessage";
+    case ResultInvalidMessage:
+      return "InvalidMessage";
 
-        case ResultConsumerNotInitialized:
-            return "ConsumerNotInitialized";
+    case ResultConsumerNotInitialized:
+      return "ConsumerNotInitialized";
 
-        case ResultProducerNotInitialized:
-            return "ProducerNotInitialized";
+    case ResultProducerNotInitialized:
+      return "ProducerNotInitialized";
 
-        case ResultInvalidTopicName:
-            return "InvalidTopicName";
+    case ResultInvalidTopicName:
+      return "InvalidTopicName";
 
-        case ResultServiceUnitNotReady:
-            return "ServiceUnitNotReady";
+    case ResultServiceUnitNotReady:
+      return "ServiceUnitNotReady";
 
-        case ResultInvalidUrl:
-            return "InvalidUrl";
+    case ResultInvalidUrl:
+      return "InvalidUrl";
 
-        case ResultChecksumError:
-            return "ChecksumError";
+    case ResultChecksumError:
+      return "ChecksumError";
 
-        case ResultTooManyLookupRequestException:
-            return "TooManyLookupRequestException";
+    case ResultTooManyLookupRequestException:
+      return "TooManyLookupRequestException";
 
-        case ResultOperationNotSupported:
-            return "OperationNotSupported";
+    case ResultOperationNotSupported:
+      return "OperationNotSupported";
 
-        case ResultProducerBlockedQuotaExceededError:
-            return "ProducerBlockedQuotaExceededError";
+    case ResultProducerBlockedQuotaExceededError:
+      return "ProducerBlockedQuotaExceededError";
 
-        case ResultProducerBlockedQuotaExceededException:
-            return "ProducerBlockedQuotaExceededException";
+    case ResultProducerBlockedQuotaExceededException:
+      return "ProducerBlockedQuotaExceededException";
 
-        case ResultProducerQueueIsFull:
-            return "ProducerQueueIsFull";
+    case ResultProducerQueueIsFull:
+      return "ProducerQueueIsFull";
 
-        case ResultMessageTooBig:
-            return "MessageTooBig";
+    case ResultMessageTooBig:
+      return "MessageTooBig";
 
-        case ResultTopicNotFound:
-            return "TopicNotFound";
+    case ResultTopicNotFound:
+      return "TopicNotFound";
 
-        case ResultSubscriptionNotFound:
-            return "SubscriptionNotFound";
+    case ResultSubscriptionNotFound:
+      return "SubscriptionNotFound";
 
-        case ResultConsumerNotFound:
-            return "ConsumerNotFound";
+    case ResultConsumerNotFound:
+      return "ConsumerNotFound";
 
-        case ResultUnsupportedVersionError:
-            return "UnsupportedVersionError";
-    };
-    // NOTE : Do not add default case in the switch above. In future if we get new cases for
-    // ServerError and miss them in the switch above we would like to get notified. Adding
-    // return here to make the compiler happy.
-    return "UnknownErrorCode";
+    case ResultUnsupportedVersionError:
+      return "UnsupportedVersionError";
+  };
+  // NOTE : Do not add default case in the switch above. In future if we get new cases for
+  // ServerError and miss them in the switch above we would like to get notified. Adding
+  // return here to make the compiler happy.
+  return "UnknownErrorCode";
 }
 
 #pragma GCC visibility push(default)
 
 std::ostream& operator<<(std::ostream& s, Result result) {
-    return s << strResult(result);
+  return s << strResult(result);
 }
 
 #pragma GCC visibility pop

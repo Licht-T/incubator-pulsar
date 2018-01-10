@@ -16,71 +16,62 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+#include <pulsar/MessageBuilder.h>
 #include <pulsar/Producer.h>
 #include "SharedBuffer.h"
-#include <pulsar/MessageBuilder.h>
 
-#include "Utils.h"
 #include "ProducerImpl.h"
+#include "Utils.h"
 
 namespace pulsar {
 
 static const std::string EMPTY_STRING;
 
-Producer::Producer()
-        : impl_() {
-}
+Producer::Producer() : impl_() {}
 
-Producer::Producer(ProducerImplBasePtr impl)
-        : impl_(impl) {
-}
+Producer::Producer(ProducerImplBasePtr impl) : impl_(impl) {}
 
 const std::string& Producer::getTopic() const {
-    return impl_ != NULL ? impl_->getTopic() : EMPTY_STRING;
+  return impl_ != NULL ? impl_->getTopic() : EMPTY_STRING;
 }
 
 Result Producer::send(const Message& msg) {
-    Promise<Result, Message> promise;
-    sendAsync(msg, WaitForCallbackValue<Message>(promise));
+  Promise<Result, Message> promise;
+  sendAsync(msg, WaitForCallbackValue<Message>(promise));
 
-    Message m;
-    Result result = promise.getFuture().get(m);
-    return result;
+  Message m;
+  Result result = promise.getFuture().get(m);
+  return result;
 }
 
 void Producer::sendAsync(const Message& msg, SendCallback callback) {
-    if (!impl_) {
-        callback(ResultProducerNotInitialized, msg);
-        return;
-    }
+  if (!impl_) {
+    callback(ResultProducerNotInitialized, msg);
+    return;
+  }
 
-    impl_->sendAsync(msg, callback);
+  impl_->sendAsync(msg, callback);
 }
 
-const std::string& Producer::getProducerName() const {
-    return impl_->getProducerName();
-}
+const std::string& Producer::getProducerName() const { return impl_->getProducerName(); }
 
-int64_t Producer::getLastSequenceId() const {
-    return impl_->getLastSequenceId();
-}
+int64_t Producer::getLastSequenceId() const { return impl_->getLastSequenceId(); }
 
 Result Producer::close() {
-    Promise<bool, Result> promise;
-    closeAsync(WaitForCallback(promise));
+  Promise<bool, Result> promise;
+  closeAsync(WaitForCallback(promise));
 
-    Result result;
-    promise.getFuture().get(result);
-    return result;
+  Result result;
+  promise.getFuture().get(result);
+  return result;
 }
 
 void Producer::closeAsync(CloseCallback callback) {
-    if (!impl_) {
-        callback(ResultProducerNotInitialized);
-        return;
-    }
+  if (!impl_) {
+    callback(ResultProducerNotInitialized);
+    return;
+  }
 
-    impl_->closeAsync(callback);
+  impl_->closeAsync(callback);
 }
-
 }

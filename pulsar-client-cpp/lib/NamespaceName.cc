@@ -17,66 +17,62 @@
  * under the License.
  */
 #include "NamespaceName.h"
-#include "NamedEntity.h"
 #include "LogUtils.h"
+#include "NamedEntity.h"
 
 #include <boost/algorithm/string.hpp>
 #include <boost/make_shared.hpp>
-#include <vector>
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 DECLARE_LOG_OBJECT()
 
 boost::shared_ptr<NamespaceName> NamespaceName::get(const std::string& property,
                                                     const std::string& cluster,
                                                     const std::string& namespaceName) {
-    if (validateNamespace(property, cluster, namespaceName)) {
-        boost::shared_ptr<NamespaceName> ptr(new NamespaceName(property, cluster, namespaceName));
-        return ptr;
-    } else {
-        LOG_DEBUG("Returning a null NamespaceName object");
-        return boost::shared_ptr<NamespaceName>();
-    }
+  if (validateNamespace(property, cluster, namespaceName)) {
+    boost::shared_ptr<NamespaceName> ptr(
+        new NamespaceName(property, cluster, namespaceName));
+    return ptr;
+  } else {
+    LOG_DEBUG("Returning a null NamespaceName object");
+    return boost::shared_ptr<NamespaceName>();
+  }
 }
 
 NamespaceName::NamespaceName(const std::string& property, const std::string& cluster,
                              const std::string& namespaceName) {
-    std::ostringstream oss;
-    oss << property << "/" << cluster << "/" << namespaceName;
-    this->namespace_ = oss.str();
-    this->property_ = property;
-    this->cluster_ = cluster;
-    this->localName_ = namespaceName;
+  std::ostringstream oss;
+  oss << property << "/" << cluster << "/" << namespaceName;
+  this->namespace_ = oss.str();
+  this->property_ = property;
+  this->cluster_ = cluster;
+  this->localName_ = namespaceName;
 }
 
-bool NamespaceName::validateNamespace(const std::string& property, const std::string& cluster,
+bool NamespaceName::validateNamespace(const std::string& property,
+                                      const std::string& cluster,
                                       const std::string& namespaceName) {
-    if (!property.empty() && !cluster.empty() && !namespaceName.empty()) {
-        return NamedEntity::checkName(property) && NamedEntity::checkName(cluster)
-                && NamedEntity::checkName(namespaceName);
-    } else {
-        LOG_DEBUG("Empty parameters passed for validating namespace");
-        return false;
-    }
+  if (!property.empty() && !cluster.empty() && !namespaceName.empty()) {
+    return NamedEntity::checkName(property) && NamedEntity::checkName(cluster) &&
+           NamedEntity::checkName(namespaceName);
+  } else {
+    LOG_DEBUG("Empty parameters passed for validating namespace");
+    return false;
+  }
 }
 
 boost::shared_ptr<NamespaceName> NamespaceName::getNamespaceObject() {
-    return boost::shared_ptr<NamespaceName>(this);
+  return boost::shared_ptr<NamespaceName>(this);
 }
 
-bool NamespaceName::operator ==(const NamespaceName& namespaceName) {
-    return this->namespace_.compare(namespaceName.namespace_) == 0;
+bool NamespaceName::operator==(const NamespaceName& namespaceName) {
+  return this->namespace_.compare(namespaceName.namespace_) == 0;
 }
 
-std::string NamespaceName::getProperty() {
-    return this->property_;
-}
+std::string NamespaceName::getProperty() { return this->property_; }
 
-std::string NamespaceName::getCluster() {
-    return this->cluster_;
-}
+std::string NamespaceName::getCluster() { return this->cluster_; }
 
-std::string NamespaceName::getLocalName() {
-    return this->localName_;
-}
+std::string NamespaceName::getLocalName() { return this->localName_; }

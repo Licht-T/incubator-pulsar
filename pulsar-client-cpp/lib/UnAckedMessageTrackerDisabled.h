@@ -23,18 +23,11 @@ namespace pulsar {
 
 class UnAckedMessageTrackerDisabled : public UnAckedMessageTrackerInterface {
  public:
-    bool add(const MessageId& m) {
-        return false;
-    }
-    bool remove(const MessageId& m) {
-        return false;
-    }
-    void removeMessagesTill(const MessageId& msgId) {
-    }
+  bool add(const MessageId& m) { return false; }
+  bool remove(const MessageId& m) { return false; }
+  void removeMessagesTill(const MessageId& msgId) {}
 
-    void clear() {
-    }
+  void clear() {}
 };
-
 }
 #endif /* LIB_UNACKEDMESSAGETRACKERDISABLED_H_ */

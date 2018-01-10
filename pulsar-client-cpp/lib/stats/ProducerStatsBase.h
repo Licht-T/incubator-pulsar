@@ -26,12 +26,12 @@
 namespace pulsar {
 class ProducerStatsBase {
  public:
-    virtual void messageSent(const Message& msg) = 0;
-    virtual void messageReceived(Result&, boost::posix_time::ptime&) = 0;
-    virtual ~ProducerStatsBase() {};
+  virtual void messageSent(const Message& msg) = 0;
+  virtual void messageReceived(Result&, boost::posix_time::ptime&) = 0;
+  virtual ~ProducerStatsBase(){};
 };
 
 typedef boost::shared_ptr<ProducerStatsBase> ProducerStatsBasePtr;
 }
 
-#endif // PULSAR_PRODUCER_STATS_BASE_HEADER
+#endif  // PULSAR_PRODUCER_STATS_BASE_HEADER

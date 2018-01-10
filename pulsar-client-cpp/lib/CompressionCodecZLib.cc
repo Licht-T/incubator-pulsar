@@ -19,9 +19,9 @@
 #include "CompressionCodecZLib.h"
 
 #include <zlib.h>
-#include <cstring>
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib>
+#include <cstring>
 #include "LogUtils.h"
 
 DECLARE_LOG_OBJECT()
@@ -29,36 +29,36 @@ DECLARE_LOG_OBJECT()
 namespace pulsar {
 
 SharedBuffer CompressionCodecZLib::encode(const SharedBuffer& raw) {
-    // Get the max size of the compressed data and allocate a buffer to hold it
-    int maxCompressedSize = compressBound(raw.readableBytes());
-    SharedBuffer compressed = SharedBuffer::allocate(maxCompressedSize);
+  // Get the max size of the compressed data and allocate a buffer to hold it
+  int maxCompressedSize = compressBound(raw.readableBytes());
+  SharedBuffer compressed = SharedBuffer::allocate(maxCompressedSize);
 
-    unsigned long bytesWritten = maxCompressedSize;
-    int res = compress((Bytef*) compressed.mutableData(), &bytesWritten, (const Bytef*) raw.data(),
-             raw.readableBytes());
-    if (res != Z_OK) {
-        LOG_ERROR("Failed to compress buffer. res=" << res);
-        abort();
-    }
+  unsigned long bytesWritten = maxCompressedSize;
+  int res = compress((Bytef*)compressed.mutableData(), &bytesWritten,
+                     (const Bytef*)raw.data(), raw.readableBytes());
+  if (res != Z_OK) {
+    LOG_ERROR("Failed to compress buffer. res=" << res);
+    abort();
+  }
 
-    compressed.bytesWritten(bytesWritten);
-    return compressed;
+  compressed.bytesWritten(bytesWritten);
+  return compressed;
 }
 
 bool CompressionCodecZLib::decode(const SharedBuffer& encoded, uint32_t uncompressedSize,
                                   SharedBuffer& decoded) {
-    SharedBuffer decompressed = SharedBuffer::allocate(uncompressedSize);
+  SharedBuffer decompressed = SharedBuffer::allocate(uncompressedSize);
 
-    unsigned long bytesUncompressed = uncompressedSize;
-    int res = uncompress((Bytef*) decompressed.mutableData(), &bytesUncompressed, (Bytef*) encoded.data(), encoded.readableBytes());
+  unsigned long bytesUncompressed = uncompressedSize;
+  int res = uncompress((Bytef*)decompressed.mutableData(), &bytesUncompressed,
+                       (Bytef*)encoded.data(), encoded.readableBytes());
 
-    decompressed.bytesWritten(bytesUncompressed);
-    if (res == Z_OK) {
-        decoded = decompressed;
-        return true;
-    } else {
-        return false;
-    }
+  decompressed.bytesWritten(bytesUncompressed);
+  if (res == Z_OK) {
+    decoded = decompressed;
+    return true;
+  } else {
+    return false;
+  }
 }
-
 }
